@@ -13,7 +13,7 @@
   --bg:#141110; --surface:rgba(20,17,16,.84); --surface-2:rgba(30,25,22,.92); --line:rgba(255,190,140,.14);
   --text:#f6efe6; --text-2:#c9b8a6; --muted:#8a7868;
   --amber:#d9662a; --amber-hi:#ffb26b; --cyan:#1f9fb7; --cyan-hi:#5fd6ea; --white:#fff3e3;
-  --ramp-0:#2a1410; --ramp-1:#6b2a14; --ramp-2:#c2521f; --ramp-3:#ff9a4a; --ramp-4:#ffe3b8;
+  --ramp-0:#2a1410; --ramp-1:#5e2312; --ramp-2:#a33a18; --ramp-3:#e0601e; --ramp-4:#ff8f3c;
   --radius:12px; --shadow:0 10px 40px rgba(0,0,0,.55);
   font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
@@ -89,7 +89,7 @@ select{width:100%;background:var(--surface-2);color:var(--text);border:1px solid
 .lg-row .c{border-radius:50%;flex:none}
 .lg-row .d{width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--white);flex:none}
 .sizes{display:flex;align-items:flex-end;gap:6px;margin-top:6px}
-.sizes .c{border-radius:50%;background:rgba(255,178,107,.35);border:1px solid var(--amber-hi)}
+.sizes .c{border-radius:50%;background:#fff1dc;border:1.5px solid #2a1410;box-shadow:0 0 6px rgba(255,178,107,.7)}
 
 /* ---------- tooltip ---------- */
 .tip{position:absolute;z-index:9;pointer-events:none;background:rgba(20,17,16,.95);border:1px solid rgba(255,190,140,.22);border-radius:10px;padding:9px 11px;
@@ -144,7 +144,7 @@ th.on{color:var(--amber-hi)}
       <h3>Show</h3>
       <div class="row" id="layers">
         <button class="tog on" data-layer="nta"><span class="sw" style="background:linear-gradient(90deg,var(--ramp-1),var(--ramp-3))"></span>Neighborhood demand</button>
-        <button class="tog on" data-layer="bld"><span class="sw" style="background:var(--amber-hi)"></span>Buildings</button>
+        <button class="tog on" data-layer="bld"><span class="sw" style="background:#fff1dc;box-shadow:0 0 0 1.5px #2a1410,0 0 6px #ffb26b"></span>Buildings</button>
         <button class="tog on" data-layer="pp"><span class="sw" style="background:var(--cyan)"></span>Power plants</button>
         <button class="tog" data-layer="sub"><span class="sw sq hollow"></span>Substations</button>
         <button class="tog" id="btn3d" title="Extrude neighborhoods by the selected metric">▲ 3D height</button>
@@ -202,7 +202,7 @@ const fmtE=v=>v>=1000?fmt(v/1000,2)+' TWh':fmt(v,v<10?1:0)+' GWh';
 const TYPES=['Multifamily','Office','Education','Healthcare','Retail & Hotel','Data Center','Other'];
 const METRICS={energy_gwh:{l:'Total site energy',u:'GWh',d:0},elec_gwh:{l:'Electricity',u:'GWh',d:0},density:{l:'Energy density',u:'GWh/km²',d:0},
   ghg_kt:{l:'GHG emissions',u:'kt CO₂e',d:0},eui_med:{l:'Median site EUI',u:'kBtu/ft²',d:0},ghgi_med:{l:'Median GHG intensity',u:'kg/ft²',d:1}};
-const RAMP=['#2b1610','#6e2a14','#b8421c','#f07a2e','#ffc46b'];
+const RAMP=['#2a1410','#5e2312','#a33a18','#e0601e','#ff8f3c'];
 const RAMP_A=[.25,.45,.6,.75,.9];
 const state={metric:'density',view3d:false,types:new Set(TYPES),selected:null,layers:{nta:true,bld:true,pp:true,sub:false}};
 
@@ -295,10 +295,10 @@ map.on('load',()=>{
   const sq=['sqrt',['get','gwh']];
   const rad=(k,add)=>['interpolate',['linear'],['zoom'],9,['+',add,['max',2.2,['*',.55*k,sq]]],12,['+',add,['max',2.6,['*',1.3*k,sq]]],15,['+',add,['max',3,['*',3*k,sq]]]];
   const BIG=45; // GWh: buildings above this are always drawn; the long tail appears from zoom 11.5
-  map.addLayer({id:'bld-small',type:'circle',source:'blds',minzoom:11.5,filter:['<',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'#ffb26b','circle-opacity':['interpolate',['linear'],['zoom'],11.5,0,12.5,.75],'circle-stroke-color':'#141110','circle-stroke-width':.8}});
-  map.addLayer({id:'bld-glow',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,4),'circle-color':'#ff7a2e','circle-opacity':.35,'circle-blur':.8}});
-  map.addLayer({id:'bld',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':['case',['boolean',['feature-state','hover'],false],'#fff3e3','#ffb26b'],'circle-opacity':.92,
-    'circle-stroke-color':'#d9662a','circle-stroke-width':1}});
+  map.addLayer({id:'bld-small',type:'circle',source:'blds',minzoom:11.5,filter:['<',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'#fff1dc','circle-opacity':['interpolate',['linear'],['zoom'],11.5,0,12.5,.85],'circle-stroke-color':'#2a1410','circle-stroke-width':1}});
+  map.addLayer({id:'bld-glow',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,5),'circle-color':'#ffb26b','circle-opacity':.4,'circle-blur':.8}});
+  map.addLayer({id:'bld',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':['case',['boolean',['feature-state','hover'],false],'#ffffff','#fff1dc'],'circle-opacity':.82,
+    'circle-stroke-color':'#2a1410','circle-stroke-width':1.5}});
   const sm=['sqrt',['get','mw']];
   const prad=add=>['interpolate',['linear'],['zoom'],9,['+',add,['max',4,['*',.45,sm]]],13,['+',add,['max',5,['*',1.1,sm]]]];
   map.addLayer({id:'pp-glow',type:'circle',source:'plants',paint:{'circle-radius':prad(7),'circle-color':'#1f9fb7','circle-opacity':.3,'circle-blur':.8}});
