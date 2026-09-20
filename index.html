@@ -10,17 +10,17 @@
 <link href="vendor/maplibre-gl.css" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a1628; --surface:rgba(10,22,40,.82); --surface-2:rgba(16,32,58,.9); --line:rgba(140,170,220,.16);
-  --text:#eaf1ff; --text-2:#a9b8d6; --muted:#6f81a6;
-  --blue:#3987e5; --orange:#d95926; --aqua:#199e70; --white:#f4f7ff;
-  --ramp-0:#12305e; --ramp-1:#1c5cab; --ramp-2:#3987e5; --ramp-3:#86b6ef; --ramp-4:#e4efff;
-  --radius:14px; --shadow:0 10px 40px rgba(0,0,0,.45);
+  --bg:#141110; --surface:rgba(20,17,16,.84); --surface-2:rgba(30,25,22,.92); --line:rgba(255,190,140,.14);
+  --text:#f6efe6; --text-2:#c9b8a6; --muted:#8a7868;
+  --amber:#d9662a; --amber-hi:#ffb26b; --cyan:#1f9fb7; --cyan-hi:#5fd6ea; --white:#fff3e3;
+  --ramp-0:#2a1410; --ramp-1:#5e2312; --ramp-2:#a33a18; --ramp-3:#e0601e; --ramp-4:#ff8f3c;
+  --radius:12px; --shadow:0 10px 40px rgba(0,0,0,.55);
   font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);overflow:hidden}
 #map{position:absolute;inset:0}
-.maplibregl-ctrl-attrib{background:rgba(10,22,40,.7)!important;color:var(--text-2)!important;font-size:10px}
+.maplibregl-ctrl-attrib{background:rgba(20,17,16,.7)!important;color:var(--text-2)!important;font-size:10px}
 .maplibregl-ctrl-attrib a{color:var(--text-2)!important}
 .maplibregl-ctrl-group{background:var(--surface-2)!important;box-shadow:var(--shadow)!important;border:1px solid var(--line)}
 .maplibregl-ctrl-group button{filter:invert(1) hue-rotate(180deg) brightness(1.4)}
@@ -29,26 +29,27 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);overflow:h
 /* ---------- header ---------- */
 .hdr{position:absolute;left:16px;top:16px;z-index:5;pointer-events:none;max-width:min(560px,calc(100vw - 32px))}
 .hdr h1{margin:0;font-size:clamp(17px,2.2vw,22px);font-weight:700;letter-spacing:-.01em;line-height:1.15;text-shadow:0 2px 12px rgba(0,0,0,.6)}
-.hdr h1 span{color:var(--blue)}
+.hdr h1 span{color:var(--amber-hi)}
+.hdr .eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-hi);opacity:.85;margin-bottom:4px}
 .hdr p{margin:6px 0 0;font-size:12.5px;color:var(--text-2);line-height:1.45;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 
 /* ---------- panel ---------- */
 .panel{position:absolute;left:16px;top:118px;bottom:16px;width:344px;z-index:6;display:flex;flex-direction:column;gap:10px;
   background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--radius);
   box-shadow:var(--shadow);padding:14px;overflow:hidden}
-.panel .scroll{overflow-y:auto;flex:1;min-height:0;padding-right:4px;scrollbar-width:thin;scrollbar-color:#2b3f66 transparent}
+.panel .scroll{overflow-y:auto;flex:1;min-height:0;padding-right:4px;scrollbar-width:thin;scrollbar-color:#4a3a30 transparent}
 .sec{margin-bottom:14px}
 .sec h3{margin:0 0 7px;font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .row{display:flex;flex-wrap:wrap;gap:6px}
 .tog{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);
   color:var(--text-2);font-size:12px;cursor:pointer;user-select:none;transition:all .15s}
-.tog:hover{border-color:rgba(140,170,220,.4);color:var(--text)}
-.tog.on{background:rgba(57,135,229,.16);border-color:rgba(57,135,229,.55);color:var(--text)}
+.tog:hover{border-color:rgba(255,190,140,.4);color:var(--text)}
+.tog.on{background:rgba(217,102,42,.16);border-color:rgba(217,102,42,.6);color:var(--text)}
 .tog .sw{width:10px;height:10px;border-radius:50%;flex:none}
 .tog .sw.sq{border-radius:2px;transform:rotate(45deg);width:9px;height:9px}
 .tog .sw.hollow{background:transparent!important;border:2px solid var(--white)}
 .chip{padding:5px 9px;border-radius:8px;border:1px solid var(--line);font-size:11.5px;color:var(--text-2);cursor:pointer;background:transparent}
-.chip.on{background:rgba(217,89,38,.16);border-color:rgba(217,89,38,.6);color:var(--text)}
+.chip.on{background:rgba(255,178,107,.14);border-color:rgba(255,178,107,.55);color:var(--text)}
 .chip:hover{color:var(--text)}
 select{width:100%;background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:12.5px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -56,7 +57,7 @@ select{width:100%;background:var(--surface-2);color:var(--text);border:1px solid
 .tile .v{font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.1}
 .tile .v small{font-size:11px;font-weight:500;color:var(--text-2);margin-left:2px}
 .tile .l{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.3}
-.insight{font-size:12.5px;line-height:1.5;color:var(--text-2);border-left:2px solid var(--blue);padding-left:10px;margin:0}
+.insight{font-size:12.5px;line-height:1.5;color:var(--text-2);border-left:2px solid var(--amber-hi);padding-left:10px;margin:0}
 .insight b{color:var(--text);font-weight:600}
 .detail h2{margin:0;font-size:16px;font-weight:700;line-height:1.2}
 .detail .sub{font-size:12px;color:var(--text-2);margin:3px 0 10px}
@@ -64,15 +65,15 @@ select{width:100%;background:var(--surface-2);color:var(--text);border:1px solid
 .kv dt{color:var(--muted)}.kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
 .bars{margin-top:6px}
 .bar{display:grid;grid-template-columns:96px 1fr 52px;align-items:center;gap:8px;font-size:11.5px;margin:4px 0;color:var(--text-2)}
-.bar i{display:block;height:8px;border-radius:2px;background:var(--blue);min-width:2px}
+.bar i{display:block;height:8px;border-radius:2px;background:var(--amber-hi);min-width:2px}
 .bar b{font-weight:500;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
 .list{list-style:none;margin:0;padding:0}
 .list li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:12px;cursor:pointer}
-.list li:hover{color:var(--blue)}
+.list li:hover{color:var(--amber-hi)}
 .list li span:last-child{color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
 .btn{background:transparent;border:1px solid var(--line);color:var(--text-2);border-radius:8px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
-.btn:hover{color:var(--text);border-color:rgba(140,170,220,.4)}
-.btn.primary{background:rgba(57,135,229,.16);border-color:rgba(57,135,229,.55);color:var(--text)}
+.btn:hover{color:var(--text);border-color:rgba(255,190,140,.4)}
+.btn.primary{background:rgba(217,102,42,.16);border-color:rgba(217,102,42,.6);color:var(--text)}
 .foot{display:flex;gap:8px;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
 .foot a{color:var(--text-2)}
 
@@ -82,31 +83,41 @@ select{width:100%;background:var(--surface-2);color:var(--text);border:1px solid
 .legend .t{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:600}
 .ramp{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--ramp-0),var(--ramp-1),var(--ramp-2),var(--ramp-3),var(--ramp-4))}
 .ramp-l{display:flex;justify-content:space-between;margin-top:3px;font-variant-numeric:tabular-nums}
+.cls{display:flex;gap:2px;height:9px}.cls span{flex:1;border-radius:2px}
+.cls-l{display:flex;gap:2px;margin-top:3px;font-variant-numeric:tabular-nums;font-size:10px;color:var(--muted)}.cls-l span{flex:1;text-align:left}
 .lg-row{display:flex;align-items:center;gap:8px;margin-top:6px}
 .lg-row .c{border-radius:50%;flex:none}
 .lg-row .d{width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--white);flex:none}
 .sizes{display:flex;align-items:flex-end;gap:6px;margin-top:6px}
-.sizes .c{border-radius:50%;background:rgba(217,89,38,.55);border:1px solid var(--orange)}
+.sizes .c{border-radius:50%;background:#fff1dc;border:1.5px solid #2a1410;box-shadow:0 0 6px rgba(255,178,107,.7)}
+
+/* ---------- hint / reset ---------- */
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:5;font-size:11px;color:var(--text-2);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;pointer-events:none}
+.hint:empty{display:none}
+.viewctl{position:absolute;right:16px;top:118px;z-index:5;display:flex;flex-direction:column;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);overflow:hidden}
+.viewctl button{width:30px;height:30px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-size:15px;cursor:pointer;line-height:1}
+.viewctl button:last-child{border-bottom:0}.viewctl button:hover{background:rgba(255,190,140,.12)}
+@media (max-width:760px){.viewctl{top:150px;right:12px}.hint{display:none}}
 
 /* ---------- tooltip ---------- */
-.tip{position:absolute;z-index:9;pointer-events:none;background:rgba(8,18,34,.94);border:1px solid rgba(140,170,220,.25);border-radius:10px;padding:9px 11px;
+.tip{position:absolute;z-index:9;pointer-events:none;background:rgba(20,17,16,.95);border:1px solid rgba(255,190,140,.22);border-radius:10px;padding:9px 11px;
   font-size:12px;line-height:1.4;color:var(--text);max-width:280px;box-shadow:var(--shadow);display:none;transform:translate(12px,12px)}
 .tip .n{font-weight:600;margin-bottom:2px}.tip .s{color:var(--text-2);font-size:11px}
 .tip .v{margin-top:4px;font-variant-numeric:tabular-nums}
 
 /* ---------- modal ---------- */
-.modal{position:absolute;inset:0;z-index:20;background:rgba(4,10,22,.7);display:none;align-items:center;justify-content:center;padding:20px}
+.modal{position:absolute;inset:0;z-index:20;background:rgba(8,6,5,.72);display:none;align-items:center;justify-content:center;padding:20px}
 .modal.on{display:flex}
-.modal .box{background:#0e1d36;border:1px solid var(--line);border-radius:var(--radius);max-width:920px;width:100%;max-height:100%;overflow:auto;padding:18px 20px;box-shadow:var(--shadow)}
+.modal .box{background:#1b1614;border:1px solid var(--line);border-radius:var(--radius);max-width:920px;width:100%;max-height:100%;overflow:auto;padding:18px 20px;box-shadow:var(--shadow)}
 .modal h2{margin:0 0 4px;font-size:16px}
 .modal .x{float:right}
 table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
 th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
 th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
-th{color:var(--muted);font-weight:600;cursor:pointer;position:sticky;top:0;background:#0e1d36}
-th.on{color:var(--blue)}
+th{color:var(--muted);font-weight:600;cursor:pointer;position:sticky;top:0;background:#1b1614}
+th.on{color:var(--amber-hi)}
 .about p{font-size:13px;line-height:1.55;color:var(--text-2)}
-.about a{color:var(--blue)}
+.about a{color:var(--amber-hi)}
 
 /* ---------- mobile ---------- */
 .ptoggle{display:none;position:absolute;left:16px;bottom:16px;z-index:7}
@@ -115,7 +126,7 @@ th.on{color:var(--blue)}
   .hdr p{display:none}
   .panel{left:0;right:0;bottom:0;top:auto;width:auto;max-height:52vh;border-radius:var(--radius) var(--radius) 0 0;transform:translateY(calc(100% - 52px));transition:transform .25s}
   .panel.open{transform:none}
-  .panel .grab{height:4px;width:44px;border-radius:2px;background:#3b5182;margin:-4px auto 6px}
+  .panel .grab{height:4px;width:44px;border-radius:2px;background:#4a3a30;margin:-4px auto 6px}
   .hdr h1{font-size:15px;max-width:calc(100vw - 70px)}
   .maplibregl-ctrl-top-right{top:52px}
   .legend{right:12px;bottom:auto;top:96px;min-width:0;padding:8px 10px;max-width:200px}
@@ -129,7 +140,8 @@ th.on{color:var(--blue)}
 <div id="map" role="application" aria-label="Map of New York City energy demand and supply"></div>
 
 <header class="hdr">
-  <h1>NYC Energy Map <span>·</span> where the city uses power, and where it comes from</h1>
+  <div class="eyebrow">NYC · Local Law 84 · CY2024</div>
+  <h1>Where the city uses power <span>·</span> and where it comes from</h1>
   <p>Every large building's 2024 energy use (Local Law 84 benchmarking) on the same canvas as the city's power plants and substations. Hover to read, click to explore.</p>
 </header>
 
@@ -140,17 +152,18 @@ th.on{color:var(--blue)}
       <h3>Show</h3>
       <div class="row" id="layers">
         <button class="tog on" data-layer="nta"><span class="sw" style="background:linear-gradient(90deg,var(--ramp-1),var(--ramp-3))"></span>Neighborhood demand</button>
-        <button class="tog on" data-layer="bld"><span class="sw" style="background:var(--orange)"></span>Buildings</button>
-        <button class="tog on" data-layer="pp"><span class="sw" style="background:var(--aqua)"></span>Power plants</button>
+        <button class="tog on" data-layer="bld"><span class="sw" style="background:#fff1dc;box-shadow:0 0 0 1.5px #2a1410,0 0 6px #ffb26b"></span>Buildings</button>
+        <button class="tog on" data-layer="pp"><span class="sw" style="background:var(--cyan)"></span>Power plants</button>
         <button class="tog" data-layer="sub"><span class="sw sq hollow"></span>Substations</button>
+        <button class="tog" id="btn3d" title="Extrude neighborhoods by the selected metric">▲ 3D height</button>
       </div>
     </div>
     <div class="sec">
       <h3>Color neighborhoods by</h3>
       <select id="metric" aria-label="Choropleth metric">
+        <option value="density">Energy density (GWh per km²)</option>
         <option value="energy_gwh">Total site energy (GWh)</option>
         <option value="elec_gwh">Electricity (GWh)</option>
-        <option value="density">Energy density (GWh per km²)</option>
         <option value="ghg_kt">GHG emissions (kt CO₂e)</option>
         <option value="eui_med">Median site EUI (kBtu/ft²)</option>
         <option value="ghgi_med">Median GHG intensity (kg CO₂e/ft²)</option>
@@ -169,6 +182,8 @@ th.on{color:var(--blue)}
 </aside>
 
 <div class="legend" id="legend"></div>
+<div class="hint" id="hint"></div>
+<div class="viewctl" id="viewctl"><button data-act="rl" title="Rotate left (or ⌃-drag / two-finger rotate)">↺</button><button data-act="rr" title="Rotate right">↻</button><button data-act="tu" title="Tilt up">⤒</button><button data-act="td" title="Tilt down">⤓</button><button data-act="reset" title="Reset view">⟲</button></div>
 <div class="tip" id="tip"></div>
 
 <div class="modal" id="tableModal"><div class="box">
@@ -185,7 +200,7 @@ th.on{color:var(--blue)}
   <p><b>Demand.</b> Buildings over 25,000 ft² must report annual energy use under NYC <a href="https://www.nyc.gov/site/buildings/codes/ll84-benchmarking-law.page" target="_blank" rel="noopener">Local Law 84</a>. This map uses the calendar-year 2024 disclosure (<a href="https://data.cityofnewyork.us/Environment/NYC-Building-Energy-and-Water-Data-Disclosure-for-/5zyy-y8am" target="_blank" rel="noopener">NYC Open Data 5zyy-y8am</a>, rows updated Nov 2025). Buildings were geocoded by tax lot (BBL) using <a href="https://data.cityofnewyork.us/City-Government/Primary-Land-Use-Tax-Lot-Output-PLUTO-/64uk-42ks" target="_blank" rel="noopener">PLUTO</a> and aggregated to the 2020 <a href="https://data.cityofnewyork.us/City-Government/2020-Neighborhood-Tabulation-Areas-NTAs-/9nt8-h7nd" target="_blank" rel="noopener">Neighborhood Tabulation Areas</a>. Cleaning: campus parent/child duplicates (identical totals reported on several rows) are collapsed to one reporting unit, and rows with site EUI outside 5–500 kBtu/ft² are dropped as reporting errors. Site energy is converted at 3.412 kBtu per kWh; natural gas at 29.3 kWh per therm. Points show the 4,000 largest consumers; neighborhood colors include all <span id="aboutN"></span> cleaned records.</p>
   <p><b>Supply.</b> Power plants come from the U.S. EIA <a href="https://atlas.eia.gov/datasets/eia::power-plants" target="_blank" rel="noopener">Energy Atlas</a> (EIA-860 nameplate capacity by fuel), filtered to the five boroughs. Transmission substations come from the <a href="https://hifld-geoplatform.opendata.arcgis.com/" target="_blank" rel="noopener">HIFLD</a> electric substations layer (imagery-derived, 2015 vintage; many entries carry no name or voltage). Substations do not include Con Edison's underground area substations.</p>
   <p><b>Caveats.</b> Site energy is energy consumed at the building, not primary energy; district steam and cogeneration blur the electricity share for large campuses. LL84 covers large buildings only (about 60% of the city's floor area), so neighborhood totals are a floor, not the whole picture. Nameplate MW is not generation: most in-city plants are peakers that run a few hundred hours a year.</p>
-  <p><b>Built by</b> <a href="https://wantinghsu.com" target="_blank" rel="noopener">Wan-Ting Hsu</a> · MapLibre GL JS · basemap © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> / © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · <a href="https://github.com/wt-hsu/nyc-energy-map" id="repoLink" target="_blank" rel="noopener">source &amp; data pipeline on GitHub</a>.</p>
+  <p><b>Built by</b> <a href="https://wantinghsu.com" target="_blank" rel="noopener">Wan-Ting Hsu</a> · MapLibre GL JS · basemap tiles by <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (open source, no API key) · map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · <a href="https://github.com/" id="repoLink" target="_blank" rel="noopener">source &amp; data pipeline on GitHub</a>.</p>
 </div></div>
 
 <script src="vendor/maplibre-gl.js"></script>
@@ -197,8 +212,9 @@ const fmtE=v=>v>=1000?fmt(v/1000,2)+' TWh':fmt(v,v<10?1:0)+' GWh';
 const TYPES=['Multifamily','Office','Education','Healthcare','Retail & Hotel','Data Center','Other'];
 const METRICS={energy_gwh:{l:'Total site energy',u:'GWh',d:0},elec_gwh:{l:'Electricity',u:'GWh',d:0},density:{l:'Energy density',u:'GWh/km²',d:0},
   ghg_kt:{l:'GHG emissions',u:'kt CO₂e',d:0},eui_med:{l:'Median site EUI',u:'kBtu/ft²',d:0},ghgi_med:{l:'Median GHG intensity',u:'kg/ft²',d:1}};
-const RAMP=['#12305e','#1c5cab','#3987e5','#86b6ef','#e4efff'];
-const state={metric:'energy_gwh',types:new Set(TYPES),selected:null,layers:{nta:true,bld:true,pp:true,sub:false}};
+const RAMP=['#2a1410','#5e2312','#a33a18','#e0601e','#ff8f3c'];
+const RAMP_A=[.25,.45,.6,.75,.9];
+const state={metric:'density',view3d:false,types:new Set(TYPES),selected:null,layers:{nta:true,bld:true,pp:true,sub:false}};
 
 const [nta,boros,blds,plants,subs,summary]=await Promise.all(['data/nta_energy.geojson','data/boroughs.geojson','data/buildings_top.geojson','data/plants.geojson','data/substations.geojson','data/summary.json'].map(u=>fetch(u).then(r=>r.json())));
 nta.features.forEach((f,i)=>{f.id=i;f.properties.mix=typeof f.properties.mix==='string'?JSON.parse(f.properties.mix):f.properties.mix;f.properties.top=typeof f.properties.top==='string'?JSON.parse(f.properties.top):f.properties.top;});
@@ -206,13 +222,44 @@ blds.features.forEach((f,i)=>f.id=i);
 $('#aboutN').textContent=fmt(summary.buildings);
 
 // ---------- map ----------
-const map=new maplibregl.Map({container:'map',
-  style:{version:8,sources:{
-    base:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png','https://b.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png','https://c.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png'],tileSize:256,attribution:'© <a href="https://carto.com/attributions">CARTO</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'},
-    labels:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png','https://b.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png'],tileSize:256}},
-    layers:[{id:'bg',type:'background',paint:{'background-color':'#0a1628'}},{id:'base',type:'raster',source:'base',paint:{'raster-opacity':.9,'raster-saturation':-.2}}]},
-  center:[-73.94,40.72],zoom:10.3,minZoom:9,maxZoom:16.5,attributionControl:{compact:true},cooperativeGestures:true});
-map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+// Basemap: OpenFreeMap vector tiles (OpenMapTiles schema, ODbL) — no API key, open source.
+const OFM='https://tiles.openfreemap.org';
+const roadGlow=(cls)=>['match',['get','class'],['motorway','trunk'],'#ff7a2e',['primary'],'#f06a2c',['secondary','tertiary'],'#c25a2a','#6b3320'];
+const baseStyle={version:8,glyphs:OFM+'/fonts/{fontstack}/{range}.pbf',
+  sources:{mask:{type:'geojson',data:'data/mask.geojson'},omt:{type:'vector',url:OFM+'/planet',attribution:'<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'}},
+  layers:[
+    {id:'bg',type:'background',paint:{'background-color':'#141110'}},
+    {id:'park',type:'fill','source-layer':'park',source:'omt',paint:{'fill-color':'#1a1614','fill-opacity':.9}},
+    {id:'landuse',type:'fill','source-layer':'landuse',source:'omt',filter:['in','class','industrial','commercial','railway','cemetery'],paint:{'fill-color':'#181412'}},
+    {id:'water',type:'fill','source-layer':'water',source:'omt',paint:{'fill-color':'#0c0b0b'}},
+    {id:'waterway',type:'line','source-layer':'waterway',source:'omt',paint:{'line-color':'#0c0b0b','line-width':1}},
+    {id:'aeroway',type:'line','source-layer':'aeroway',source:'omt',paint:{'line-color':'#3a241a','line-width':1}},
+    {id:'coast-glow',type:'line','source-layer':'water',source:'omt',paint:{'line-color':'#8a7a6a','line-width':['interpolate',['linear'],['zoom'],9,3,14,8],'line-blur':['interpolate',['linear'],['zoom'],9,3,14,8],'line-opacity':['interpolate',['linear'],['zoom'],9,.12,12,.22]}},
+    {id:'coast',type:'line','source-layer':'water',source:'omt',paint:{'line-color':'#a89a8a','line-width':['interpolate',['linear'],['zoom'],9,.5,14,1.4],'line-opacity':.9}},
+    {id:'building-line',type:'line','source-layer':'building',source:'omt',minzoom:13,paint:{'line-color':'#5a4436','line-width':['interpolate',['linear'],['zoom'],13,.3,16,.9],'line-opacity':['interpolate',['linear'],['zoom'],13,0,14.5,.7]}},
+    {id:'rail',type:'line','source-layer':'transportation',source:'omt',filter:['==','class','rail'],paint:{'line-color':'#4a2c1f','line-width':.8,'line-dasharray':[3,3]}},
+    {id:'road-minor-glow',type:'line','source-layer':'transportation',source:'omt',minzoom:11,filter:['all',['in','class','minor','service','residential','living_street','tertiary'],['!=','brunnel','tunnel']],paint:{'line-color':'#8a7a6a','line-width':['interpolate',['linear'],['zoom'],11,1.2,15,5],'line-blur':['interpolate',['linear'],['zoom'],11,1.5,15,4],'line-opacity':['interpolate',['linear'],['zoom'],11,0,12.5,.12]}},
+    {id:'road-minor',type:'line','source-layer':'transportation',source:'omt',minzoom:10,filter:['all',['in','class','minor','service','residential','living_street','tertiary'],['!=','brunnel','tunnel']],paint:{'line-color':['match',['get','class'],['tertiary'],'#7a6e63','#574d45'],'line-width':['interpolate',['linear'],['zoom'],10,.25,13,.8,16,1.6],'line-opacity':['interpolate',['linear'],['zoom'],10,.35,12,.85]}},
+    {id:'road-major-glow',type:'line','source-layer':'transportation',source:'omt',filter:['all',['in','class','motorway','trunk','primary','secondary'],['!=','brunnel','tunnel']],paint:{'line-color':'#8a7a6a','line-width':['interpolate',['linear'],['zoom'],9,3,13,10,16,18],'line-blur':['interpolate',['linear'],['zoom'],9,3,13,8,16,12],'line-opacity':['interpolate',['linear'],['zoom'],9,.08,12,.16]}},
+    {id:'road-major',type:'line','source-layer':'transportation',source:'omt',filter:['all',['in','class','motorway','trunk','primary','secondary'],['!=','brunnel','tunnel']],paint:{'line-color':['match',['get','class'],['motorway','trunk'],'#b8aa9a',['primary'],'#9e9082','#74685c'],'line-width':['interpolate',['linear'],['zoom'],9,['match',['get','class'],['motorway','trunk'],1.4,['primary'],1,.6],13,['match',['get','class'],['motorway','trunk'],3.2,['primary'],2.4,1.6],16,['match',['get','class'],['motorway','trunk'],6,['primary'],4.5,3]]}},
+    {id:'boundary',type:'line','source-layer':'boundary',source:'omt',filter:['<=','admin_level',6],paint:{'line-color':'#4a3a30','line-width':.8,'line-dasharray':[2,2]}},
+    {id:'place-label',type:'symbol','source-layer':'place',source:'omt',filter:['in','class','city','town','suburb','neighbourhood','quarter'],minzoom:10,layout:{'text-field':['get','name:latin'],'text-font':['Noto Sans Regular'],'text-size':['interpolate',['linear'],['zoom'],10,9.5,14,12],'text-transform':'uppercase','text-letter-spacing':.12,'text-max-width':7},paint:{'text-color':'#c9b8a6','text-halo-color':'#141110','text-halo-width':1.4,'text-opacity':.85}},
+    {id:'road-label',type:'symbol','source-layer':'transportation_name',source:'omt',minzoom:13,filter:['in','class','motorway','trunk','primary','secondary'],layout:{'symbol-placement':'line','text-field':['get','name:latin'],'text-font':['Noto Sans Regular'],'text-size':10,'text-letter-spacing':.06},paint:{'text-color':'#c9b8a6','text-halo-color':'#141110','text-halo-width':1.2}},
+    {id:'mask',type:'fill',source:'mask',paint:{'fill-color':'#141110','fill-opacity':.66}},
+    {id:'water-label',type:'symbol','source-layer':'water_name',source:'omt',minzoom:10,layout:{'text-field':['get','name:latin'],'text-font':['Noto Sans Italic'],'text-size':10,'text-letter-spacing':.1},paint:{'text-color':'#6f5f52','text-halo-color':'#0c0b0b','text-halo-width':1}}
+  ]};
+const map=new maplibregl.Map({container:'map',style:baseStyle,
+  center:[-73.94,40.72],zoom:10.3,minZoom:9,maxZoom:16.5,attributionControl:{compact:true},cooperativeGestures:window.self!==window.top,maxPitch:70});
+map.on('load',()=>{ // graticule: faint 0.05° grid, like a drafting sheet
+  const g={type:'FeatureCollection',features:[]};
+  for(let x=-74.35;x<=-73.6;x+=.05)g.features.push({type:'Feature',geometry:{type:'LineString',coordinates:[[x,40.45],[x,41.0]]}});
+  for(let y=40.45;y<=41.0;y+=.05)g.features.push({type:'Feature',geometry:{type:'LineString',coordinates:[[-74.35,y],[-73.6,y]]}});
+  map.addSource('grat',{type:'geojson',data:g});
+  map.addLayer({id:'grat',type:'line',source:'grat',paint:{'line-color':'#8a7868','line-width':.5,'line-opacity':.22}},'park');
+});
+map.addControl(new maplibregl.NavigationControl({showCompass:true,visualizePitch:true}),'top-right');
+map.dragRotate.enable();map.touchZoomRotate.enableRotation();map.keyboard.enable();
+window.__map=map; map.on('error',e=>console.error('MAPERR',e&&e.error&&e.error.message));
 
 // choropleth expression for current metric (+ type filter for energy metrics)
 function metricValueExpr(){
@@ -223,28 +270,25 @@ function metricValueExpr(){
   }
   return ['coalesce',['get',m],-1];
 }
-function metricDomain(){
+function metricValues(){
   const m=state.metric, all=state.types.size===TYPES.length;
-  let vals;
-  if(!all&&(m==='energy_gwh'||m==='density')){vals=nta.features.map(f=>{const s=[...state.types].reduce((a,t)=>a+(f.properties.mix[t]||0),0);return m==='density'?s/Math.max(f.properties.area_km2,.01):s;});}
-  else vals=nta.features.map(f=>f.properties[m]).filter(v=>v!=null);
-  vals=vals.filter(v=>v>0).sort((a,b)=>a-b);
+  if(!all&&(m==='energy_gwh'||m==='density'))return nta.features.map(f=>{const v=[...state.types].reduce((a,t)=>a+(f.properties.mix[t]||0),0);return m==='density'?v/Math.max(f.properties.area_km2,.01):v;});
+  return nta.features.map(f=>f.properties[m]).filter(v=>v!=null);
+}
+// quintile breaks: each colour class holds ~20% of neighbourhoods, so the top class is always "the hottest fifth"
+function metricDomain(){
+  const vals=metricValues().filter(v=>v>0).sort((a,b)=>a-b);
   const q=p=>vals[Math.min(vals.length-1,Math.floor(p*vals.length))];
-  const log=(m==='energy_gwh'||m==='elec_gwh'||m==='density'||m==='ghg_kt');
-  return {lo:q(.05),hi:q(.97),log,stops:[.05,.3,.6,.8,.97].map(q)};
+  return {lo:vals[0],hi:vals[vals.length-1],breaks:[.2,.4,.6,.8].map(q)};
 }
-function fillExpr(){
-  const d=metricDomain();
-  const v=metricValueExpr();
-  const stops=[];d.stops.forEach((s,i)=>{const x=d.log?Math.log2(Math.max(s,.001)):s;if(i===0||x>stops[stops.length-2])stops.push(x,RAMP[i]);});
-  const input=d.log?['log2',['max',v,0.001]]:['max',v,0];
-  return ['case',['<',v,0],'rgba(0,0,0,0)',['interpolate',['linear'],input,...stops]];
-}
+function fillExpr(){const d=metricDomain(),v=metricValueExpr();const st=['step',v,RAMP[0]];d.breaks.forEach((b,i)=>st.push(b,RAMP[i+1]));return ['case',['<',v,0],'rgba(0,0,0,0)',st];}
+function alphaExpr(h){const d=metricDomain(),v=metricValueExpr();const st=['step',v,RAMP_A[0]];d.breaks.forEach((b,i)=>st.push(b,RAMP_A[i+1]));return h?['+',st,.1]:st;}
+function heightExpr(){const d=metricDomain(),v=metricValueExpr();return ['*',9000,['sqrt',['/',['max',v,0],d.hi]]];}  // sqrt: mid values stay visible next to the Midtown spike
 
 map.on('load',()=>{
   // diamond icon for substations
   const c=document.createElement('canvas');c.width=c.height=28;const g=c.getContext('2d');
-  g.translate(14,14);g.rotate(Math.PI/4);g.lineWidth=2.4;g.strokeStyle='#f4f7ff';g.fillStyle='rgba(10,22,40,.85)';g.beginPath();g.rect(-7,-7,14,14);g.fill();g.stroke();
+  g.translate(14,14);g.rotate(Math.PI/4);g.lineWidth=2.4;g.strokeStyle='#fff3e3';g.fillStyle='rgba(20,17,16,.85)';g.beginPath();g.rect(-7,-7,14,14);g.fill();g.stroke();
   map.addImage('diamond',{width:28,height:28,data:g.getImageData(0,0,28,28).data},{pixelRatio:2});
 
   map.addSource('nta',{type:'geojson',data:nta});
@@ -253,23 +297,24 @@ map.on('load',()=>{
   map.addSource('plants',{type:'geojson',data:plants});
   map.addSource('subs',{type:'geojson',data:subs});
 
-  map.addLayer({id:'nta-fill',type:'fill',source:'nta',paint:{'fill-color':fillExpr(),'fill-opacity':['case',['boolean',['feature-state','hover'],false],.92,.72]}});
-  map.addLayer({id:'nta-line',type:'line',source:'nta',paint:{'line-color':'#0a1628','line-width':.6,'line-opacity':.7}});
-  map.addLayer({id:'nta-sel',type:'line',source:'nta',filter:['==',['id'],-1],paint:{'line-color':'#e4efff','line-width':2}});
-  map.addLayer({id:'boro-line',type:'line',source:'boros',paint:{'line-color':'rgba(190,210,245,.35)','line-width':1.2}});
-  map.addLayer({id:'labels',type:'raster',source:'labels',paint:{'raster-opacity':.85}});
+  map.addLayer({id:'nta-fill',type:'fill',source:'nta',paint:{'fill-color':fillExpr(),'fill-opacity':['case',['boolean',['feature-state','hover'],false],alphaExpr(true),alphaExpr(false)]}},'coast-glow');
+  map.addLayer({id:'nta-3d',type:'fill-extrusion',source:'nta',layout:{visibility:'none'},paint:{'fill-extrusion-color':['case',['boolean',['feature-state','hover'],false],'#fff1dc',fillExpr()],'fill-extrusion-height':heightExpr(),'fill-extrusion-opacity':1,'fill-extrusion-base':0,'fill-extrusion-vertical-gradient':true}});
+  map.setLight({anchor:'map',position:[1.4,110,35],color:'#ffe6c8',intensity:.55});
+  map.addLayer({id:'nta-line',type:'line',source:'nta',paint:{'line-color':'#141110','line-width':.5,'line-opacity':.6}},'coast-glow');
+  map.addLayer({id:'nta-sel',type:'line',source:'nta',filter:['==',['id'],-1],paint:{'line-color':'#fff3e3','line-width':2}});
+  map.addLayer({id:'boro-line',type:'line',source:'boros',paint:{'line-color':'rgba(255,210,160,.28)','line-width':1}});
 
   const sq=['sqrt',['get','gwh']];
   const rad=(k,add)=>['interpolate',['linear'],['zoom'],9,['+',add,['max',2.2,['*',.55*k,sq]]],12,['+',add,['max',2.6,['*',1.3*k,sq]]],15,['+',add,['max',3,['*',3*k,sq]]]];
   const BIG=45; // GWh: buildings above this are always drawn; the long tail appears from zoom 11.5
-  map.addLayer({id:'bld-small',type:'circle',source:'blds',minzoom:11.5,filter:['<',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'#d95926','circle-opacity':['interpolate',['linear'],['zoom'],11.5,0,12.5,.7],'circle-stroke-color':'#0a1628','circle-stroke-width':.8}});
-  map.addLayer({id:'bld-glow',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,3),'circle-color':'#d95926','circle-opacity':.18,'circle-blur':.6}});
-  map.addLayer({id:'bld',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'#d95926','circle-opacity':['case',['boolean',['feature-state','hover'],false],1,.78],
-    'circle-stroke-color':'#0a1628','circle-stroke-width':1}});
+  map.addLayer({id:'bld-small',type:'circle',source:'blds',minzoom:11.5,filter:['<',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'#fff1dc','circle-opacity':['interpolate',['linear'],['zoom'],11.5,0,12.5,.85],'circle-stroke-color':'#2a1410','circle-stroke-width':1}});
+  map.addLayer({id:'bld-glow',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,5),'circle-color':'#ffb26b','circle-opacity':.4,'circle-blur':.8}});
+  map.addLayer({id:'bld',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':['case',['boolean',['feature-state','hover'],false],'#ffffff','#fff1dc'],'circle-opacity':.82,
+    'circle-stroke-color':'#2a1410','circle-stroke-width':1.5}});
   const sm=['sqrt',['get','mw']];
   const prad=add=>['interpolate',['linear'],['zoom'],9,['+',add,['max',4,['*',.45,sm]]],13,['+',add,['max',5,['*',1.1,sm]]]];
-  map.addLayer({id:'pp-glow',type:'circle',source:'plants',paint:{'circle-radius':prad(6),'circle-color':'#199e70','circle-opacity':.22,'circle-blur':.7}});
-  map.addLayer({id:'pp',type:'circle',source:'plants',paint:{'circle-radius':prad(0),'circle-color':'rgba(25,158,112,.35)','circle-stroke-color':'#2fd39a','circle-stroke-width':2}});
+  map.addLayer({id:'pp-glow',type:'circle',source:'plants',paint:{'circle-radius':prad(7),'circle-color':'#1f9fb7','circle-opacity':.3,'circle-blur':.8}});
+  map.addLayer({id:'pp',type:'circle',source:'plants',paint:{'circle-radius':prad(0),'circle-color':'rgba(31,159,183,.3)','circle-stroke-color':'#5fd6ea','circle-stroke-width':2}});
   map.addLayer({id:'sub',type:'symbol',source:'subs',layout:{'icon-image':'diamond','icon-size':['interpolate',['linear'],['zoom'],9,.5,13,.9],'icon-allow-overlap':true,visibility:'none'}});
 
   applyLayers();applyTypes();renderLegend();renderContent();
@@ -279,15 +324,24 @@ map.on('load',()=>{
 // ---------- layers / filters ----------
 function applyLayers(){
   const v=k=>state.layers[k]?'visible':'none';
-  [['nta-fill','nta'],['nta-line','nta'],['nta-sel','nta'],['bld','bld'],['bld-glow','bld'],['bld-small','bld'],['pp','pp'],['pp-glow','pp'],['sub','sub']].forEach(([l,k])=>map.setLayoutProperty(l,'visibility',v(k)));
+  [['nta-line','nta'],['nta-sel','nta'],['bld','bld'],['bld-glow','bld'],['bld-small','bld'],['pp','pp'],['pp-glow','pp'],['sub','sub']].forEach(([l,k])=>map.setLayoutProperty(l,'visibility',v(k)));
+  map.setLayoutProperty('nta-fill','visibility',state.layers.nta&&!state.view3d?'visible':'none');
+  ['nta-line','boro-line'].forEach(l=>map.setLayoutProperty(l,'visibility',state.layers.nta&&!state.view3d?'visible':'none'));
+  map.setLayoutProperty('nta-3d','visibility',state.layers.nta&&state.view3d?'visible':'none');
 }
 function applyTypes(){
   const t=state.types.size===TYPES.length?true:['in',['get','type'],['literal',[...state.types]]];
   map.setFilter('bld',['all',['>=',['get','gwh'],45],t]);map.setFilter('bld-glow',['all',['>=',['get','gwh'],45],t]);map.setFilter('bld-small',['all',['<',['get','gwh'],45],t]);
-  map.setPaintProperty('nta-fill','fill-color',fillExpr());
+  map.setPaintProperty('nta-fill','fill-color',fillExpr());map.setPaintProperty('nta-fill','fill-opacity',['case',['boolean',['feature-state','hover'],false],alphaExpr(true),alphaExpr(false)]);
+  map.setPaintProperty('nta-3d','fill-extrusion-color',['case',['boolean',['feature-state','hover'],false],'#fff1dc',fillExpr()]);map.setPaintProperty('nta-3d','fill-extrusion-height',heightExpr());
 }
-$('#layers').addEventListener('click',e=>{const b=e.target.closest('.tog');if(!b)return;state.layers[b.dataset.layer]=!state.layers[b.dataset.layer];b.classList.toggle('on');applyLayers();renderLegend();});
-$('#metric').addEventListener('change',e=>{state.metric=e.target.value;map.setPaintProperty('nta-fill','fill-color',fillExpr());renderLegend();});
+$('#btn3d').addEventListener('click',()=>{state.view3d=!state.view3d;$('#btn3d').classList.toggle('on',state.view3d);
+  // building dots sit on top of the blocks and clutter the 3D read: park them while in 3D, restore on exit
+  if(state.view3d){state._bldWas=state.layers.bld;state.layers.bld=false;}else if(state._bldWas!==undefined){state.layers.bld=state._bldWas;}
+  $('.tog[data-layer="bld"]').classList.toggle('on',state.layers.bld);applyLayers();renderLegend();if(state.view3d)map.easeTo({pitch:60,bearing:-25,zoom:Math.max(map.getZoom(),10.6),center:[-73.95,40.73],duration:1100});else map.easeTo({pitch:0,bearing:0,duration:900});
+  $('#hint').textContent=state.view3d?'Drag to pan · ⌃-drag, two-finger rotate, or the ↺ ↻ ⤒ ⤓ buttons to rotate & tilt · scroll to zoom':'';});
+$('#layers').addEventListener('click',e=>{const b=e.target.closest('.tog');if(!b||!b.dataset.layer)return;state.layers[b.dataset.layer]=!state.layers[b.dataset.layer];b.classList.toggle('on');applyLayers();renderLegend();});
+$('#metric').addEventListener('change',e=>{state.metric=e.target.value;applyTypes();renderLegend();});
 const typesEl=$('#types');
 TYPES.forEach(t=>{const b=document.createElement('button');b.className='chip on';b.textContent=t;b.dataset.t=t;typesEl.appendChild(b);});
 const allBtn=document.createElement('button');allBtn.className='chip';allBtn.textContent='All';allBtn.style.borderStyle='dashed';typesEl.appendChild(allBtn);
@@ -303,10 +357,11 @@ function renderLegend(){
   const m=METRICS[state.metric], d=metricDomain(), all=state.types.size===TYPES.length;
   const filtered=!all&&(state.metric==='energy_gwh'||state.metric==='density');
   let h='';
-  if(state.layers.nta){h+=`<div class="t">${m.l}${filtered?' · selected types':''}</div><div class="ramp"></div><div class="ramp-l"><span>${fmt(d.lo,m.d)}</span><span>${fmt(d.hi,m.d)}+ ${m.u}</span></div>`;
+  if(state.layers.nta){const lab=[d.lo,...d.breaks,d.hi].map(x=>fmt(x,m.d));
+    h+=`<div class="t">${m.l}${filtered?' · selected types':''} <span style="font-weight:400;text-transform:none;letter-spacing:0">· ${m.u}</span></div><div class="cls">${RAMP.map((c,i)=>`<span style="background:${c};opacity:${RAMP_A[i]+.1}"></span>`).join('')}</div><div class="cls-l">${[fmt(0),...lab.slice(1,4),lab[4]+'+'].map(x=>`<span>${x}</span>`).join('')}</div><div style="margin-top:3px;color:var(--muted)">Five classes, ~20% of neighborhoods each${state.view3d?' · height = value':''}</div>`;
     if(!all&&!filtered)h+=`<div style="margin-top:4px;color:var(--muted)">Neighborhood color ignores the type filter for this metric</div>`;}
   if(state.layers.bld){h+=`<div class="t" style="margin-top:10px">Buildings · site energy</div><div class="sizes">${[20,100,400].map(g=>`<span class="c" style="width:${2*Math.max(2.2,.7*Math.sqrt(g))}px;height:${2*Math.max(2.2,.7*Math.sqrt(g))}px"></span>`).join('')}<span style="margin-left:4px">20 · 100 · 400 GWh</span></div><div style="margin-top:3px;color:var(--muted)">Buildings under 45 GWh appear when you zoom in</div>`;}
-  if(state.layers.pp){h+=`<div class="lg-row"><span class="c" style="width:12px;height:12px;background:rgba(25,158,112,.35);border:2px solid #2fd39a"></span>Power plant · size = nameplate MW</div>`;}
+  if(state.layers.pp){h+=`<div class="lg-row"><span class="c" style="width:12px;height:12px;background:rgba(31,159,183,.3);border:2px solid #5fd6ea"></span>Power plant · size = nameplate MW</div>`;}
   if(state.layers.sub){h+=`<div class="lg-row"><span class="d"></span>Transmission substation</div>`;}
   $('#legend').innerHTML=h||'<div class="t">All layers hidden</div>';
 }
@@ -356,7 +411,7 @@ function renderDetail(el){
     const fu=Object.entries(p.fuels).sort((a,b)=>b[1]-a[1]);
     h+=`<h2>${p.name}</h2><div class="sub">${p.city} · ${p.sector} · ${p.utility}</div>
     <div class="tiles"><div class="tile"><div class="v">${fmt(p.mw)}<small>MW</small></div><div class="l">nameplate capacity</div></div><div class="tile"><div class="v" style="font-size:14px;padding-top:3px">${p.src}</div><div class="l">primary source</div></div></div>
-    <div class="sec" style="margin-top:12px"><h3>Capacity by fuel</h3><div class="bars">${fu.map(([t,v])=>`<div class="bar"><span>${t}</span><i style="width:${100*v/fu[0][1]}%;background:var(--aqua)"></i><b>${fmt(v)}</b></div>`).join('')}</div></div>
+    <div class="sec" style="margin-top:12px"><h3>Capacity by fuel</h3><div class="bars">${fu.map(([t,v])=>`<div class="bar"><span>${t}</span><i style="width:${100*v/fu[0][1]}%;background:var(--cyan-hi)"></i><b>${fmt(v)}</b></div>`).join('')}</div></div>
     <p style="font-size:11.5px;color:var(--muted)">${p.tech}. Data: EIA-860 via U.S. Energy Atlas${p.period?', '+p.period:''}.</p>`;
   } else if(kind==='sub'){
     h+=`<h2>${p.name}</h2><div class="sub">${p.county} County · ${p.status}</div><dl class="kv"><dt>Max voltage</dt><dd>${p.kv?p.kv+' kV':'not available'}</dd><dt>Lines</dt><dd>${p.lines||'not available'}</dd></dl><p style="font-size:11.5px;color:var(--muted)">HIFLD substation record, imagery-derived. Names and voltages are missing for most NYC entries.</p>`;
@@ -373,13 +428,13 @@ function bbox(g){let b=[180,90,-180,-90];const w=c=>{b=[Math.min(b[0],c[0]),Math
 const tip=$('#tip');let hov={src:null,id:null};
 function setHover(src,id){if(hov.src)map.setFeatureState({source:hov.src,id:hov.id},{hover:false});hov={src,id};if(src)map.setFeatureState({source:src,id},{hover:true});}
 function wireHover(){
-  const order=['sub','pp','bld','bld-small','nta-fill'];
+  const order=['sub','pp','bld','bld-small','nta-3d','nta-fill'];
   map.on('mousemove',e=>{
     const fs=map.queryRenderedFeatures(e.point,{layers:order.filter(l=>map.getLayoutProperty(l,'visibility')!=='none')});
     if(!fs.length){tip.style.display='none';map.getCanvas().style.cursor='';setHover(null);return;}
     const f=fs[0],p=f.properties;map.getCanvas().style.cursor='pointer';
     let h='';
-    if(f.layer.id==='nta-fill'){const m=METRICS[state.metric];const mix=typeof p.mix==='string'?JSON.parse(p.mix):p.mix;
+    if(f.layer.id==='nta-fill'||f.layer.id==='nta-3d'){const m=METRICS[state.metric];const mix=typeof p.mix==='string'?JSON.parse(p.mix):p.mix;
       h=`<div class="n">${p.name}</div><div class="s">${p.boro} · ${fmt(p.n)} buildings</div><div class="v">${fmtE(p.energy_gwh)} site energy · ${fmt(100*p.elec_share)}% electric<br>${m.l}: <b>${fmt(p[state.metric],m.d)} ${m.u}</b></div>`;setHover('nta',f.id);}
     else if(f.layer.id==='bld'||f.layer.id==='bld-small'){h=`<div class="n">${p.name}</div><div class="s">${p.ptype} · ${p.nta}</div><div class="v"><b>${fmt(p.gwh,1)} GWh</b> · EUI ${fmt(p.eui)} kBtu/ft² · ${fmt(p.gfa/1000)}k ft²</div>`;setHover('blds',f.id);}
     else if(f.layer.id==='pp'){h=`<div class="n">${p.name}</div><div class="s">${p.src} · ${p.sector}</div><div class="v"><b>${fmt(p.mw)} MW</b> nameplate</div>`;setHover(null);}
@@ -391,9 +446,9 @@ function wireHover(){
 }
 function wireClicks(){
   map.on('click',e=>{
-    const fs=map.queryRenderedFeatures(e.point,{layers:['sub','pp','bld','bld-small','nta-fill'].filter(l=>map.getLayoutProperty(l,'visibility')!=='none')});
+    const fs=map.queryRenderedFeatures(e.point,{layers:['sub','pp','bld','bld-small','nta-3d','nta-fill'].filter(l=>map.getLayoutProperty(l,'visibility')!=='none')});
     if(!fs.length)return;const f=fs[0];
-    if(f.layer.id==='nta-fill')selectNTA(nta.features[f.id],false);
+    if(f.layer.id==='nta-fill'||f.layer.id==='nta-3d')selectNTA(nta.features[f.id],false);
     else if(f.layer.id==='bld'||f.layer.id==='bld-small')select('bld',blds.features[f.id]);
     else if(f.layer.id==='pp')select('pp',{properties:{...f.properties,fuels:typeof f.properties.fuels==='string'?JSON.parse(f.properties.fuels):f.properties.fuels}});
     else select('sub',{properties:f.properties});
@@ -415,6 +470,12 @@ $$('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove
 $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.modal.on').forEach(m=>m.classList.remove('on'));});
 $('#grab').onclick=()=>$('#panel').classList.toggle('open');
+$('#viewctl').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.act;
+  if(a==='rl')map.easeTo({bearing:map.getBearing()-30,duration:400});
+  else if(a==='rr')map.easeTo({bearing:map.getBearing()+30,duration:400});
+  else if(a==='tu')map.easeTo({pitch:Math.min(70,map.getPitch()+15),duration:400});
+  else if(a==='td')map.easeTo({pitch:Math.max(0,map.getPitch()-15),duration:400});
+  else map.easeTo({center:[-73.94,40.72],zoom:10.3,pitch:state.view3d?60:0,bearing:state.view3d?-25:0,duration:900});});
 })();
 </script>
 </body>

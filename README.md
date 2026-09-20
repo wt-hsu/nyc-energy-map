@@ -42,7 +42,7 @@ Cleaning rules (see `scripts/build_data.py`): Portfolio Manager parent/child dup
 
 ## Stack
 
-Single static page — [MapLibre GL JS](https://maplibre.org/) (vendored in `vendor/`), CARTO Dark Matter raster basemap, no build step, no backend.
+Single static page — [MapLibre GL JS](https://maplibre.org/) (vendored in `vendor/`), OpenFreeMap vector tiles (open source, no API key) styled as a warm "glowing grid" basemap, no build step, no backend.
 
 ## Data sources
 
@@ -51,7 +51,7 @@ Single static page — [MapLibre GL JS](https://maplibre.org/) (vendored in `ven
 - NYC DCP — [2020 Neighborhood Tabulation Areas](https://data.cityofnewyork.us/City-Government/2020-Neighborhood-Tabulation-Areas-NTAs-/9nt8-h7nd), dataset `9nt8-h7nd`
 - U.S. EIA — [Power Plants, U.S. Energy Atlas](https://atlas.eia.gov/datasets/eia::power-plants) (EIA-860)
 - HIFLD — [Electric Substations](https://hifld-geoplatform.opendata.arcgis.com/)
-- Basemap © [CARTO](https://carto.com/attributions) © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
+- Basemap tiles — [OpenFreeMap](https://openfreemap.org) (OpenMapTiles schema); map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL)
 
 ## License
 
