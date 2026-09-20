@@ -1,0 +1,199 @@
+{
+ "year": 2024,
+ "buildings": 27595,
+ "gfa_msf": 3487.9,
+ "energy_gwh": 81267.0,
+ "elec_gwh": 28453.0,
+ "gas_gwh": 43015.7,
+ "steam_gwh": 4850.1,
+ "oil_gwh": 4697.6,
+ "ghg_kt": 21295.7,
+ "by_boro": {
+  "Bronx": {
+   "n": 5098.0,
+   "energy_gwh": 13035.86,
+   "elec_gwh": 3366.74,
+   "ghg_kt": 3157.72,
+   "gfa_msf": 516.67
+  },
+  "Brooklyn": {
+   "n": 7006.0,
+   "energy_gwh": 15013.45,
+   "elec_gwh": 4790.54,
+   "ghg_kt": 3771.22,
+   "gfa_msf": 694.84
+  },
+  "Manhattan": {
+   "n": 10133.0,
+   "energy_gwh": 39152.76,
+   "elec_gwh": 15882.05,
+   "ghg_kt": 10828.1,
+   "gfa_msf": 1643.11
+  },
+  "Queens": {
+   "n": 4877.0,
+   "energy_gwh": 12560.78,
+   "elec_gwh": 3826.16,
+   "ghg_kt": 3137.37,
+   "gfa_msf": 569.23
+  },
+  "Staten Island": {
+   "n": 481.0,
+   "energy_gwh": 1504.14,
+   "elec_gwh": 587.52,
+   "ghg_kt": 401.28,
+   "gfa_msf": 64.02
+  }
+ },
+ "by_type": {
+  "Data Center": {
+   "n": 9.0,
+   "energy_gwh": 200.25,
+   "elec_gwh": 179.92
+  },
+  "Education": {
+   "n": 2177.0,
+   "energy_gwh": 5394.75,
+   "elec_gwh": 2017.42
+  },
+  "Healthcare": {
+   "n": 463.0,
+   "energy_gwh": 6406.42,
+   "elec_gwh": 2262.63
+  },
+  "Multifamily": {
+   "n": 19139.0,
+   "energy_gwh": 48419.74,
+   "elec_gwh": 12519.12
+  },
+  "Office": {
+   "n": 2291.0,
+   "energy_gwh": 11018.72,
+   "elec_gwh": 6583.71
+  },
+  "Other": {
+   "n": 2235.0,
+   "energy_gwh": 5763.1,
+   "elec_gwh": 2771.23
+  },
+  "Retail & Hotel": {
+   "n": 1281.0,
+   "energy_gwh": 4064.01,
+   "elec_gwh": 2118.98
+  }
+ },
+ "plants": 81,
+ "plant_mw": 8590.9,
+ "plant_mw_by_fuel": {
+  "Natural gas": 8041.9,
+  "Petroleum": 507.4,
+  "Battery": 33.0,
+  "Solar": 8.6
+ },
+ "plant_mw_by_county": {
+  "Richmond": 1002.3,
+  "New York": 804.1,
+  "Kings": 1339.3,
+  "Queens": 5184.2,
+  "Bronx": 261.0
+ },
+ "substations": 114,
+ "top_nta": [
+  {
+   "nta": "MN0502",
+   "name": "Midtown-Times Square",
+   "boro": "Manhattan",
+   "energy_gwh": 5736.47,
+   "density": 2514.89
+  },
+  {
+   "nta": "MN0401",
+   "name": "Chelsea-Hudson Yards",
+   "boro": "Manhattan",
+   "energy_gwh": 2517.6,
+   "density": 913.3
+  },
+  {
+   "nta": "MN0101",
+   "name": "Financial District-Battery Park City",
+   "boro": "Manhattan",
+   "energy_gwh": 2483.51,
+   "density": 1390.37
+  },
+  {
+   "nta": "MN0801",
+   "name": "Upper East Side-Lenox Hill-Roosevelt Island",
+   "boro": "Manhattan",
+   "energy_gwh": 2274.7,
+   "density": 1138.77
+  },
+  {
+   "nta": "MN0604",
+   "name": "East Midtown-Turtle Bay",
+   "boro": "Manhattan",
+   "energy_gwh": 1901.98,
+   "density": 1558.22
+  },
+  {
+   "nta": "MN0501",
+   "name": "Midtown South-Flatiron-Union Square",
+   "boro": "Manhattan",
+   "energy_gwh": 1799.39,
+   "density": 1301.73
+  },
+  {
+   "nta": "MN0603",
+   "name": "Murray Hill-Kips Bay",
+   "boro": "Manhattan",
+   "energy_gwh": 1798.24,
+   "density": 1227.31
+  },
+  {
+   "nta": "MN0701",
+   "name": "Upper West Side-Lincoln Square",
+   "boro": "Manhattan",
+   "energy_gwh": 1738.83,
+   "density": 1184.79
+  },
+  {
+   "nta": "MN0802",
+   "name": "Upper East Side-Carnegie Hill",
+   "boro": "Manhattan",
+   "energy_gwh": 1652.18,
+   "density": 886.3
+  },
+  {
+   "nta": "MN0702",
+   "name": "Upper West Side (Central)",
+   "boro": "Manhattan",
+   "energy_gwh": 1375.79,
+   "density": 582.78
+  }
+ ],
+ "metric_ranges": {
+  "energy_gwh": [
+   34.886,
+   1348.1099999999997
+  ],
+  "elec_gwh": [
+   12.488,
+   587.348
+  ],
+  "density": [
+   6.122,
+   891.6999999999996
+  ],
+  "eui_med": [
+   51.38,
+   83.73999999999998
+  ],
+  "ghgi_med": [
+   4.08,
+   5.96
+  ],
+  "ghg_kt": [
+   9.540000000000001,
+   363.17199999999934
+  ]
+ }
+}

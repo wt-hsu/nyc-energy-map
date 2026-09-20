@@ -1,0 +1,4 @@
+data/raw/*
+!data/raw/SOURCES.md
+.DS_Store
+node_modules/

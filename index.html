@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NYC Energy Map — where the city uses power, and where it comes from</title>
+<meta name="description" content="Interactive map of New York City's building energy demand (Local Law 84, 2024) alongside its in-city power plants and substations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="vendor/maplibre-gl.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1628; --surface:rgba(10,22,40,.82); --surface-2:rgba(16,32,58,.9); --line:rgba(140,170,220,.16);
+  --text:#eaf1ff; --text-2:#a9b8d6; --muted:#6f81a6;
+  --blue:#3987e5; --orange:#d95926; --aqua:#199e70; --white:#f4f7ff;
+  --ramp-0:#12305e; --ramp-1:#1c5cab; --ramp-2:#3987e5; --ramp-3:#86b6ef; --ramp-4:#e4efff;
+  --radius:14px; --shadow:0 10px 40px rgba(0,0,0,.45);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);overflow:hidden}
+#map{position:absolute;inset:0}
+.maplibregl-ctrl-attrib{background:rgba(10,22,40,.7)!important;color:var(--text-2)!important;font-size:10px}
+.maplibregl-ctrl-attrib a{color:var(--text-2)!important}
+.maplibregl-ctrl-group{background:var(--surface-2)!important;box-shadow:var(--shadow)!important;border:1px solid var(--line)}
+.maplibregl-ctrl-group button{filter:invert(1) hue-rotate(180deg) brightness(1.4)}
+.maplibregl-canvas:focus{outline:none}
+
+/* ---------- header ---------- */
+.hdr{position:absolute;left:16px;top:16px;z-index:5;pointer-events:none;max-width:min(560px,calc(100vw - 32px))}
+.hdr h1{margin:0;font-size:clamp(17px,2.2vw,22px);font-weight:700;letter-spacing:-.01em;line-height:1.15;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.hdr h1 span{color:var(--blue)}
+.hdr p{margin:6px 0 0;font-size:12.5px;color:var(--text-2);line-height:1.45;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+
+/* ---------- panel ---------- */
+.panel{position:absolute;left:16px;top:118px;bottom:16px;width:344px;z-index:6;display:flex;flex-direction:column;gap:10px;
+  background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:14px;overflow:hidden}
+.panel .scroll{overflow-y:auto;flex:1;min-height:0;padding-right:4px;scrollbar-width:thin;scrollbar-color:#2b3f66 transparent}
+.sec{margin-bottom:14px}
+.sec h3{margin:0 0 7px;font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.tog{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);
+  color:var(--text-2);font-size:12px;cursor:pointer;user-select:none;transition:all .15s}
+.tog:hover{border-color:rgba(140,170,220,.4);color:var(--text)}
+.tog.on{background:rgba(57,135,229,.16);border-color:rgba(57,135,229,.55);color:var(--text)}
+.tog .sw{width:10px;height:10px;border-radius:50%;flex:none}
+.tog .sw.sq{border-radius:2px;transform:rotate(45deg);width:9px;height:9px}
+.tog .sw.hollow{background:transparent!important;border:2px solid var(--white)}
+.chip{padding:5px 9px;border-radius:8px;border:1px solid var(--line);font-size:11.5px;color:var(--text-2);cursor:pointer;background:transparent}
+.chip.on{background:rgba(217,89,38,.16);border-color:rgba(217,89,38,.6);color:var(--text)}
+.chip:hover{color:var(--text)}
+select{width:100%;background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:12.5px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+.tile .v{font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.1}
+.tile .v small{font-size:11px;font-weight:500;color:var(--text-2);margin-left:2px}
+.tile .l{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.3}
+.insight{font-size:12.5px;line-height:1.5;color:var(--text-2);border-left:2px solid var(--blue);padding-left:10px;margin:0}
+.insight b{color:var(--text);font-weight:600}
+.detail h2{margin:0;font-size:16px;font-weight:700;line-height:1.2}
+.detail .sub{font-size:12px;color:var(--text-2);margin:3px 0 10px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
+.bars{margin-top:6px}
+.bar{display:grid;grid-template-columns:96px 1fr 52px;align-items:center;gap:8px;font-size:11.5px;margin:4px 0;color:var(--text-2)}
+.bar i{display:block;height:8px;border-radius:2px;background:var(--blue);min-width:2px}
+.bar b{font-weight:500;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:12px;cursor:pointer}
+.list li:hover{color:var(--blue)}
+.list li span:last-child{color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.btn{background:transparent;border:1px solid var(--line);color:var(--text-2);border-radius:8px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
+.btn:hover{color:var(--text);border-color:rgba(140,170,220,.4)}
+.btn.primary{background:rgba(57,135,229,.16);border-color:rgba(57,135,229,.55);color:var(--text)}
+.foot{display:flex;gap:8px;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.foot a{color:var(--text-2)}
+
+/* ---------- legend ---------- */
+.legend{position:absolute;right:16px;bottom:34px;z-index:5;background:var(--surface);backdrop-filter:blur(14px);border:1px solid var(--line);
+  border-radius:12px;padding:10px 12px;font-size:11px;color:var(--text-2);box-shadow:var(--shadow);min-width:190px}
+.legend .t{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:600}
+.ramp{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--ramp-0),var(--ramp-1),var(--ramp-2),var(--ramp-3),var(--ramp-4))}
+.ramp-l{display:flex;justify-content:space-between;margin-top:3px;font-variant-numeric:tabular-nums}
+.lg-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.lg-row .c{border-radius:50%;flex:none}
+.lg-row .d{width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--white);flex:none}
+.sizes{display:flex;align-items:flex-end;gap:6px;margin-top:6px}
+.sizes .c{border-radius:50%;background:rgba(217,89,38,.55);border:1px solid var(--orange)}
+
+/* ---------- tooltip ---------- */
+.tip{position:absolute;z-index:9;pointer-events:none;background:rgba(8,18,34,.94);border:1px solid rgba(140,170,220,.25);border-radius:10px;padding:9px 11px;
+  font-size:12px;line-height:1.4;color:var(--text);max-width:280px;box-shadow:var(--shadow);display:none;transform:translate(12px,12px)}
+.tip .n{font-weight:600;margin-bottom:2px}.tip .s{color:var(--text-2);font-size:11px}
+.tip .v{margin-top:4px;font-variant-numeric:tabular-nums}
+
+/* ---------- modal ---------- */
+.modal{position:absolute;inset:0;z-index:20;background:rgba(4,10,22,.7);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.modal .box{background:#0e1d36;border:1px solid var(--line);border-radius:var(--radius);max-width:920px;width:100%;max-height:100%;overflow:auto;padding:18px 20px;box-shadow:var(--shadow)}
+.modal h2{margin:0 0 4px;font-size:16px}
+.modal .x{float:right}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th{color:var(--muted);font-weight:600;cursor:pointer;position:sticky;top:0;background:#0e1d36}
+th.on{color:var(--blue)}
+.about p{font-size:13px;line-height:1.55;color:var(--text-2)}
+.about a{color:var(--blue)}
+
+/* ---------- mobile ---------- */
+.ptoggle{display:none;position:absolute;left:16px;bottom:16px;z-index:7}
+@media (max-width:760px){
+  .hdr{max-width:calc(100vw - 32px)}
+  .hdr p{display:none}
+  .panel{left:0;right:0;bottom:0;top:auto;width:auto;max-height:52vh;border-radius:var(--radius) var(--radius) 0 0;transform:translateY(calc(100% - 52px));transition:transform .25s}
+  .panel.open{transform:none}
+  .panel .grab{height:4px;width:44px;border-radius:2px;background:#3b5182;margin:-4px auto 6px}
+  .hdr h1{font-size:15px;max-width:calc(100vw - 70px)}
+  .maplibregl-ctrl-top-right{top:52px}
+  .legend{right:12px;bottom:auto;top:96px;min-width:0;padding:8px 10px;max-width:200px}
+  .legend .sizes,.legend .sizes + div{display:none}
+  .tiles .v{font-size:16px}
+}
+@media (min-width:761px){.panel .grab{display:none}}
+</style>
+</head>
+<body>
+<div id="map" role="application" aria-label="Map of New York City energy demand and supply"></div>
+
+<header class="hdr">
+  <h1>NYC Energy Map <span>·</span> where the city uses power, and where it comes from</h1>
+  <p>Every large building's 2024 energy use (Local Law 84 benchmarking) on the same canvas as the city's power plants and substations. Hover to read, click to explore.</p>
+</header>
+
+<aside class="panel" id="panel">
+  <div class="grab" id="grab"></div>
+  <div class="scroll">
+    <div class="sec">
+      <h3>Show</h3>
+      <div class="row" id="layers">
+        <button class="tog on" data-layer="nta"><span class="sw" style="background:linear-gradient(90deg,var(--ramp-1),var(--ramp-3))"></span>Neighborhood demand</button>
+        <button class="tog on" data-layer="bld"><span class="sw" style="background:var(--orange)"></span>Buildings</button>
+        <button class="tog on" data-layer="pp"><span class="sw" style="background:var(--aqua)"></span>Power plants</button>
+        <button class="tog" data-layer="sub"><span class="sw sq hollow"></span>Substations</button>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>Color neighborhoods by</h3>
+      <select id="metric" aria-label="Choropleth metric">
+        <option value="energy_gwh">Total site energy (GWh)</option>
+        <option value="elec_gwh">Electricity (GWh)</option>
+        <option value="density">Energy density (GWh per km²)</option>
+        <option value="ghg_kt">GHG emissions (kt CO₂e)</option>
+        <option value="eui_med">Median site EUI (kBtu/ft²)</option>
+        <option value="ghgi_med">Median GHG intensity (kg CO₂e/ft²)</option>
+      </select>
+    </div>
+    <div class="sec">
+      <h3>Building type</h3>
+      <div class="row" id="types"></div>
+    </div>
+    <div id="content"></div>
+  </div>
+  <div class="foot">
+    <span>LL84 CY2024 · EIA-860 · HIFLD</span>
+    <span><button class="btn" id="tableBtn">Table</button> <button class="btn" id="aboutBtn">About</button></span>
+  </div>
+</aside>
+
+<div class="legend" id="legend"></div>
+<div class="tip" id="tip"></div>
+
+<div class="modal" id="tableModal"><div class="box">
+  <button class="btn x" data-close>Close</button>
+  <h2>Neighborhoods, ranked</h2>
+  <div class="sub" style="font-size:12px;color:var(--text-2)">Click a column to sort · click a row to fly there</div>
+  <div id="tableWrap"></div>
+</div></div>
+
+<div class="modal" id="aboutModal"><div class="box about">
+  <button class="btn x" data-close>Close</button>
+  <h2>About this map</h2>
+  <p><b>Purpose.</b> Energy maps usually show either demand (buildings) or supply (the grid), never both. This map puts New York City's building energy use and its in-city generation and transmission assets on one canvas, so the concentration of demand — and how little is generated near it — reads at a glance.</p>
+  <p><b>Demand.</b> Buildings over 25,000 ft² must report annual energy use under NYC <a href="https://www.nyc.gov/site/buildings/codes/ll84-benchmarking-law.page" target="_blank" rel="noopener">Local Law 84</a>. This map uses the calendar-year 2024 disclosure (<a href="https://data.cityofnewyork.us/Environment/NYC-Building-Energy-and-Water-Data-Disclosure-for-/5zyy-y8am" target="_blank" rel="noopener">NYC Open Data 5zyy-y8am</a>, rows updated Nov 2025). Buildings were geocoded by tax lot (BBL) using <a href="https://data.cityofnewyork.us/City-Government/Primary-Land-Use-Tax-Lot-Output-PLUTO-/64uk-42ks" target="_blank" rel="noopener">PLUTO</a> and aggregated to the 2020 <a href="https://data.cityofnewyork.us/City-Government/2020-Neighborhood-Tabulation-Areas-NTAs-/9nt8-h7nd" target="_blank" rel="noopener">Neighborhood Tabulation Areas</a>. Cleaning: campus parent/child duplicates (identical totals reported on several rows) are collapsed to one reporting unit, and rows with site EUI outside 5–500 kBtu/ft² are dropped as reporting errors. Site energy is converted at 3.412 kBtu per kWh; natural gas at 29.3 kWh per therm. Points show the 4,000 largest consumers; neighborhood colors include all <span id="aboutN"></span> cleaned records.</p>
+  <p><b>Supply.</b> Power plants come from the U.S. EIA <a href="https://atlas.eia.gov/datasets/eia::power-plants" target="_blank" rel="noopener">Energy Atlas</a> (EIA-860 nameplate capacity by fuel), filtered to the five boroughs. Transmission substations come from the <a href="https://hifld-geoplatform.opendata.arcgis.com/" target="_blank" rel="noopener">HIFLD</a> electric substations layer (imagery-derived, 2015 vintage; many entries carry no name or voltage). Substations do not include Con Edison's underground area substations.</p>
+  <p><b>Caveats.</b> Site energy is energy consumed at the building, not primary energy; district steam and cogeneration blur the electricity share for large campuses. LL84 covers large buildings only (about 60% of the city's floor area), so neighborhood totals are a floor, not the whole picture. Nameplate MW is not generation: most in-city plants are peakers that run a few hundred hours a year.</p>
+  <p><b>Built by</b> <a href="https://wantinghsu.com" target="_blank" rel="noopener">Wan-Ting Hsu</a> · MapLibre GL JS · basemap © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> / © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · <a href="https://github.com/" id="repoLink" target="_blank" rel="noopener">source &amp; data pipeline on GitHub</a>.</p>
+</div></div>
+
+<script src="vendor/maplibre-gl.js"></script>
+<script>
+(async function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fmt=(v,d=0)=>v==null||isNaN(v)?'—':Number(v).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d});
+const fmtE=v=>v>=1000?fmt(v/1000,2)+' TWh':fmt(v,v<10?1:0)+' GWh';
+const TYPES=['Multifamily','Office','Education','Healthcare','Retail & Hotel','Data Center','Other'];
+const METRICS={energy_gwh:{l:'Total site energy',u:'GWh',d:0},elec_gwh:{l:'Electricity',u:'GWh',d:0},density:{l:'Energy density',u:'GWh/km²',d:0},
+  ghg_kt:{l:'GHG emissions',u:'kt CO₂e',d:0},eui_med:{l:'Median site EUI',u:'kBtu/ft²',d:0},ghgi_med:{l:'Median GHG intensity',u:'kg/ft²',d:1}};
+const RAMP=['#12305e','#1c5cab','#3987e5','#86b6ef','#e4efff'];
+const state={metric:'energy_gwh',types:new Set(TYPES),selected:null,layers:{nta:true,bld:true,pp:true,sub:false}};
+
+const [nta,boros,blds,plants,subs,summary]=await Promise.all(['data/nta_energy.geojson','data/boroughs.geojson','data/buildings_top.geojson','data/plants.geojson','data/substations.geojson','data/summary.json'].map(u=>fetch(u).then(r=>r.json())));
+nta.features.forEach((f,i)=>{f.id=i;f.properties.mix=typeof f.properties.mix==='string'?JSON.parse(f.properties.mix):f.properties.mix;f.properties.top=typeof f.properties.top==='string'?JSON.parse(f.properties.top):f.properties.top;});
+blds.features.forEach((f,i)=>f.id=i);
+$('#aboutN').textContent=fmt(summary.buildings);
+
+// ---------- map ----------
+const map=new maplibregl.Map({container:'map',
+  style:{version:8,sources:{
+    base:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png','https://b.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png','https://c.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png'],tileSize:256,attribution:'© <a href="https://carto.com/attributions">CARTO</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'},
+    labels:{type:'raster',tiles:['https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png','https://b.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png'],tileSize:256}},
+    layers:[{id:'bg',type:'background',paint:{'background-color':'#0a1628'}},{id:'base',type:'raster',source:'base',paint:{'raster-opacity':.9,'raster-saturation':-.2}}]},
+  center:[-73.94,40.72],zoom:10.3,minZoom:9,maxZoom:16.5,attributionControl:{compact:true},cooperativeGestures:true});
+map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+
+// choropleth expression for current metric (+ type filter for energy metrics)
+function metricValueExpr(){
+  const m=state.metric, all=state.types.size===TYPES.length;
+  if(!all&&(m==='energy_gwh'||m==='density')){
+    const sum=['+',...[...state.types].map(t=>['coalesce',['get',t,['get','mix']],0])];
+    return m==='density'?['/',sum,['max',['get','area_km2'],0.01]]:sum;
+  }
+  return ['coalesce',['get',m],-1];
+}
+function metricDomain(){
+  const m=state.metric, all=state.types.size===TYPES.length;
+  let vals;
+  if(!all&&(m==='energy_gwh'||m==='density')){vals=nta.features.map(f=>{const s=[...state.types].reduce((a,t)=>a+(f.properties.mix[t]||0),0);return m==='density'?s/Math.max(f.properties.area_km2,.01):s;});}
+  else vals=nta.features.map(f=>f.properties[m]).filter(v=>v!=null);
+  vals=vals.filter(v=>v>0).sort((a,b)=>a-b);
+  const q=p=>vals[Math.min(vals.length-1,Math.floor(p*vals.length))];
+  const log=(m==='energy_gwh'||m==='elec_gwh'||m==='density'||m==='ghg_kt');
+  return {lo:q(.05),hi:q(.97),log,stops:[.05,.3,.6,.8,.97].map(q)};
+}
+function fillExpr(){
+  const d=metricDomain();
+  const v=metricValueExpr();
+  const stops=[];d.stops.forEach((s,i)=>{const x=d.log?Math.log2(Math.max(s,.001)):s;if(i===0||x>stops[stops.length-2])stops.push(x,RAMP[i]);});
+  const input=d.log?['log2',['max',v,0.001]]:['max',v,0];
+  return ['case',['<',v,0],'rgba(0,0,0,0)',['interpolate',['linear'],input,...stops]];
+}
+
+map.on('load',()=>{
+  // diamond icon for substations
+  const c=document.createElement('canvas');c.width=c.height=28;const g=c.getContext('2d');
+  g.translate(14,14);g.rotate(Math.PI/4);g.lineWidth=2.4;g.strokeStyle='#f4f7ff';g.fillStyle='rgba(10,22,40,.85)';g.beginPath();g.rect(-7,-7,14,14);g.fill();g.stroke();
+  map.addImage('diamond',{width:28,height:28,data:g.getImageData(0,0,28,28).data},{pixelRatio:2});
+
+  map.addSource('nta',{type:'geojson',data:nta});
+  map.addSource('boros',{type:'geojson',data:boros});
+  map.addSource('blds',{type:'geojson',data:blds});
+  map.addSource('plants',{type:'geojson',data:plants});
+  map.addSource('subs',{type:'geojson',data:subs});
+
+  map.addLayer({id:'nta-fill',type:'fill',source:'nta',paint:{'fill-color':fillExpr(),'fill-opacity':['case',['boolean',['feature-state','hover'],false],.92,.72]}});
+  map.addLayer({id:'nta-line',type:'line',source:'nta',paint:{'line-color':'#0a1628','line-width':.6,'line-opacity':.7}});
+  map.addLayer({id:'nta-sel',type:'line',source:'nta',filter:['==',['id'],-1],paint:{'line-color':'#e4efff','line-width':2}});
+  map.addLayer({id:'boro-line',type:'line',source:'boros',paint:{'line-color':'rgba(190,210,245,.35)','line-width':1.2}});
+  map.addLayer({id:'labels',type:'raster',source:'labels',paint:{'raster-opacity':.85}});
+
+  const sq=['sqrt',['get','gwh']];
+  const rad=(k,add)=>['interpolate',['linear'],['zoom'],9,['+',add,['max',2.2,['*',.55*k,sq]]],12,['+',add,['max',2.6,['*',1.3*k,sq]]],15,['+',add,['max',3,['*',3*k,sq]]]];
+  const BIG=45; // GWh: buildings above this are always drawn; the long tail appears from zoom 11.5
+  map.addLayer({id:'bld-small',type:'circle',source:'blds',minzoom:11.5,filter:['<',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'#d95926','circle-opacity':['interpolate',['linear'],['zoom'],11.5,0,12.5,.7],'circle-stroke-color':'#0a1628','circle-stroke-width':.8}});
+  map.addLayer({id:'bld-glow',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,3),'circle-color':'#d95926','circle-opacity':.18,'circle-blur':.6}});
+  map.addLayer({id:'bld',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'#d95926','circle-opacity':['case',['boolean',['feature-state','hover'],false],1,.78],
+    'circle-stroke-color':'#0a1628','circle-stroke-width':1}});
+  const sm=['sqrt',['get','mw']];
+  const prad=add=>['interpolate',['linear'],['zoom'],9,['+',add,['max',4,['*',.45,sm]]],13,['+',add,['max',5,['*',1.1,sm]]]];
+  map.addLayer({id:'pp-glow',type:'circle',source:'plants',paint:{'circle-radius':prad(6),'circle-color':'#199e70','circle-opacity':.22,'circle-blur':.7}});
+  map.addLayer({id:'pp',type:'circle',source:'plants',paint:{'circle-radius':prad(0),'circle-color':'rgba(25,158,112,.35)','circle-stroke-color':'#2fd39a','circle-stroke-width':2}});
+  map.addLayer({id:'sub',type:'symbol',source:'subs',layout:{'icon-image':'diamond','icon-size':['interpolate',['linear'],['zoom'],9,.5,13,.9],'icon-allow-overlap':true,visibility:'none'}});
+
+  applyLayers();applyTypes();renderLegend();renderContent();
+  wireHover();wireClicks();
+});
+
+// ---------- layers / filters ----------
+function applyLayers(){
+  const v=k=>state.layers[k]?'visible':'none';
+  [['nta-fill','nta'],['nta-line','nta'],['nta-sel','nta'],['bld','bld'],['bld-glow','bld'],['bld-small','bld'],['pp','pp'],['pp-glow','pp'],['sub','sub']].forEach(([l,k])=>map.setLayoutProperty(l,'visibility',v(k)));
+}
+function applyTypes(){
+  const t=state.types.size===TYPES.length?true:['in',['get','type'],['literal',[...state.types]]];
+  map.setFilter('bld',['all',['>=',['get','gwh'],45],t]);map.setFilter('bld-glow',['all',['>=',['get','gwh'],45],t]);map.setFilter('bld-small',['all',['<',['get','gwh'],45],t]);
+  map.setPaintProperty('nta-fill','fill-color',fillExpr());
+}
+$('#layers').addEventListener('click',e=>{const b=e.target.closest('.tog');if(!b)return;state.layers[b.dataset.layer]=!state.layers[b.dataset.layer];b.classList.toggle('on');applyLayers();renderLegend();});
+$('#metric').addEventListener('change',e=>{state.metric=e.target.value;map.setPaintProperty('nta-fill','fill-color',fillExpr());renderLegend();});
+const typesEl=$('#types');
+TYPES.forEach(t=>{const b=document.createElement('button');b.className='chip on';b.textContent=t;b.dataset.t=t;typesEl.appendChild(b);});
+const allBtn=document.createElement('button');allBtn.className='chip';allBtn.textContent='All';allBtn.style.borderStyle='dashed';typesEl.appendChild(allBtn);
+typesEl.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;
+  if(b===allBtn){state.types=new Set(TYPES);}
+  else if(state.types.size===TYPES.length){state.types=new Set([b.dataset.t]);}   // first click isolates
+  else{state.types.has(b.dataset.t)?state.types.delete(b.dataset.t):state.types.add(b.dataset.t);if(!state.types.size)state.types=new Set(TYPES);}
+  $$('#types .chip[data-t]').forEach(c=>c.classList.toggle('on',state.types.has(c.dataset.t)));
+  applyTypes();renderLegend();renderContent();});
+
+// ---------- legend ----------
+function renderLegend(){
+  const m=METRICS[state.metric], d=metricDomain(), all=state.types.size===TYPES.length;
+  const filtered=!all&&(state.metric==='energy_gwh'||state.metric==='density');
+  let h='';
+  if(state.layers.nta){h+=`<div class="t">${m.l}${filtered?' · selected types':''}</div><div class="ramp"></div><div class="ramp-l"><span>${fmt(d.lo,m.d)}</span><span>${fmt(d.hi,m.d)}+ ${m.u}</span></div>`;
+    if(!all&&!filtered)h+=`<div style="margin-top:4px;color:var(--muted)">Neighborhood color ignores the type filter for this metric</div>`;}
+  if(state.layers.bld){h+=`<div class="t" style="margin-top:10px">Buildings · site energy</div><div class="sizes">${[20,100,400].map(g=>`<span class="c" style="width:${2*Math.max(2.2,.7*Math.sqrt(g))}px;height:${2*Math.max(2.2,.7*Math.sqrt(g))}px"></span>`).join('')}<span style="margin-left:4px">20 · 100 · 400 GWh</span></div><div style="margin-top:3px;color:var(--muted)">Buildings under 45 GWh appear when you zoom in</div>`;}
+  if(state.layers.pp){h+=`<div class="lg-row"><span class="c" style="width:12px;height:12px;background:rgba(25,158,112,.35);border:2px solid #2fd39a"></span>Power plant · size = nameplate MW</div>`;}
+  if(state.layers.sub){h+=`<div class="lg-row"><span class="d"></span>Transmission substation</div>`;}
+  $('#legend').innerHTML=h||'<div class="t">All layers hidden</div>';
+}
+
+// ---------- panel content ----------
+function renderContent(){
+  const el=$('#content'), s=summary;
+  if(state.selected){renderDetail(el);return;}
+  const all=state.types.size===TYPES.length;
+  const sel=[...state.types];
+  const n=sel.reduce((a,t)=>a+(s.by_type[t]?.n||0),0), e=sel.reduce((a,t)=>a+(s.by_type[t]?.energy_gwh||0),0), el_=sel.reduce((a,t)=>a+(s.by_type[t]?.elec_gwh||0),0);
+  const top=s.top_nta[0], mnShare=s.by_boro.Manhattan.energy_gwh/s.energy_gwh, gasShare=s.plant_mw_by_fuel['Natural gas']/s.plant_mw, qShare=s.plant_mw_by_county.Queens/s.plant_mw;
+  el.innerHTML=`
+  <div class="sec"><h3>${all?'Citywide, 2024':'Selected types, 2024'}</h3>
+    <div class="tiles">
+      <div class="tile"><div class="v">${fmt(n)}</div><div class="l">large buildings reporting</div></div>
+      <div class="tile"><div class="v">${fmtE(e)}</div><div class="l">site energy used</div></div>
+      <div class="tile"><div class="v">${fmtE(el_)}</div><div class="l">of it electricity (${fmt(100*el_/e)}%)</div></div>
+      <div class="tile"><div class="v">${fmt(s.plant_mw/1000,1)}<small>GW</small></div><div class="l">in-city generating capacity, ${s.plants} plants</div></div>
+    </div></div>
+  <div class="sec"><h3>What the map shows</h3>
+    <p class="insight"><b>Manhattan</b> holds ${fmt(100*mnShare)}% of large-building energy use but only ${fmt(100*s.plant_mw_by_county['New York']/s.plant_mw)}% of the city's generating capacity. <b>${top.name}</b> alone burns ${fmtE(top.energy_gwh)} a year — ${fmt(top.density)} GWh per km².</p>
+    <p class="insight" style="margin-top:8px">In-city supply is ${fmt(100*gasShare)}% natural gas and ${fmt(100*qShare)}% of it sits in <b>Queens</b> (Ravenswood, Astoria). Batteries add ${fmt(s.plant_mw_by_fuel.Battery)} MW so far. Everything else arrives over the substations — turn them on to see the chokepoints.</p></div>
+  <div class="sec"><h3>Energy by building type</h3><div class="bars">${TYPES.map(t=>{const v=s.by_type[t]?.energy_gwh||0;return `<div class="bar"><span>${t}</span><i style="width:${100*v/s.by_type.Multifamily.energy_gwh}%;opacity:${state.types.has(t)?1:.3}"></i><b>${fmt(v)}</b></div>`;}).join('')}<div style="font-size:10.5px;color:var(--muted);margin-top:2px">GWh site energy, 2024</div></div></div>
+  <div class="sec"><h3>Top neighborhoods</h3><ul class="list">${s.top_nta.slice(0,6).map(t=>`<li data-nta="${t.nta}"><span>${t.name} <span style="color:var(--muted)">· ${t.boro}</span></span><span>${fmtE(t.energy_gwh)}</span></li>`).join('')}</ul></div>`;
+  el.querySelectorAll('[data-nta]').forEach(li=>li.onclick=()=>{const f=nta.features.find(x=>x.properties.nta===li.dataset.nta);selectNTA(f,true);});
+}
+function renderDetail(el){
+  const {kind,p,f}=state.selected;
+  let h=`<div class="detail"><button class="btn" id="back" style="margin-bottom:10px">← Back to overview</button>`;
+  if(kind==='nta'){
+    const mix=Object.entries(p.mix).sort((a,b)=>b[1]-a[1]);const mx=mix[0]?.[1]||1;
+    h+=`<h2>${p.name}</h2><div class="sub">${p.boro} · ${fmt(p.n)} large buildings · ${fmt(p.gfa_msf,1)} M ft²</div>
+    <div class="tiles"><div class="tile"><div class="v">${fmtE(p.energy_gwh)}</div><div class="l">site energy</div></div>
+    <div class="tile"><div class="v">${fmt(p.density)}</div><div class="l">GWh per km²</div></div>
+    <div class="tile"><div class="v">${fmt(100*p.elec_share)}<small>%</small></div><div class="l">electricity share</div></div>
+    <div class="tile"><div class="v">${fmt(p.ghg_kt)}</div><div class="l">kt CO₂e</div></div></div>
+    <dl class="kv" style="margin-top:10px"><dt>Electricity</dt><dd>${fmtE(p.elec_gwh)}</dd><dt>Natural gas</dt><dd>${fmtE(p.gas_gwh)}</dd><dt>District steam</dt><dd>${fmtE(Math.max(0,p.steam_gwh))}</dd><dt>Fuel oil</dt><dd>${fmtE(p.oil_gwh)}</dd><dt>Median site EUI</dt><dd>${fmt(p.eui_med)} kBtu/ft²</dd><dt>Median GHG intensity</dt><dd>${fmt(p.ghgi_med,1)} kg/ft²</dd></dl>
+    <div class="sec" style="margin-top:12px"><h3>Energy by type</h3><div class="bars">${mix.map(([t,v])=>`<div class="bar"><span>${t}</span><i style="width:${100*v/mx}%"></i><b>${fmt(v)}</b></div>`).join('')}</div></div>
+    <div class="sec"><h3>Largest consumers here</h3><ul class="list">${p.top.map((t,i)=>`<li data-i="${i}"><span>${t.name}<br><span style="color:var(--muted);font-size:11px">${t.type} · EUI ${fmt(t.eui)}</span></span><span>${fmt(t.gwh,1)} GWh</span></li>`).join('')}</ul></div>`;
+  } else if(kind==='bld'){
+    h+=`<h2>${p.name}</h2><div class="sub">${p.addr} · ${p.nta}, ${p.boro}</div>
+    <div class="tiles"><div class="tile"><div class="v">${fmt(p.gwh,1)}</div><div class="l">GWh site energy</div></div><div class="tile"><div class="v">${fmt(p.eui)}</div><div class="l">site EUI, kBtu/ft²</div></div>
+    <div class="tile"><div class="v">${p.star==null?'—':p.star}</div><div class="l">ENERGY STAR score</div></div><div class="tile"><div class="v">${fmt(p.ghgi,1)}</div><div class="l">kg CO₂e per ft²</div></div></div>
+    <dl class="kv" style="margin-top:10px"><dt>Type</dt><dd>${p.ptype}</dd><dt>Floor area</dt><dd>${fmt(p.gfa)} ft²</dd><dt>Built</dt><dd>${p.built||'—'}</dd><dt>Electricity</dt><dd>${fmt(p.elec,1)} GWh</dd><dt>Natural gas</dt><dd>${fmt(p.gas,1)} GWh</dd><dt>District steam</dt><dd>${fmt(Math.max(0,p.steam),1)} GWh</dd></dl>`;
+  } else if(kind==='pp'){
+    const fu=Object.entries(p.fuels).sort((a,b)=>b[1]-a[1]);
+    h+=`<h2>${p.name}</h2><div class="sub">${p.city} · ${p.sector} · ${p.utility}</div>
+    <div class="tiles"><div class="tile"><div class="v">${fmt(p.mw)}<small>MW</small></div><div class="l">nameplate capacity</div></div><div class="tile"><div class="v" style="font-size:14px;padding-top:3px">${p.src}</div><div class="l">primary source</div></div></div>
+    <div class="sec" style="margin-top:12px"><h3>Capacity by fuel</h3><div class="bars">${fu.map(([t,v])=>`<div class="bar"><span>${t}</span><i style="width:${100*v/fu[0][1]}%;background:var(--aqua)"></i><b>${fmt(v)}</b></div>`).join('')}</div></div>
+    <p style="font-size:11.5px;color:var(--muted)">${p.tech}. Data: EIA-860 via U.S. Energy Atlas${p.period?', '+p.period:''}.</p>`;
+  } else if(kind==='sub'){
+    h+=`<h2>${p.name}</h2><div class="sub">${p.county} County · ${p.status}</div><dl class="kv"><dt>Max voltage</dt><dd>${p.kv?p.kv+' kV':'not available'}</dd><dt>Lines</dt><dd>${p.lines||'not available'}</dd></dl><p style="font-size:11.5px;color:var(--muted)">HIFLD substation record, imagery-derived. Names and voltages are missing for most NYC entries.</p>`;
+  }
+  el.innerHTML=h+'</div>';
+  $('#back').onclick=()=>{state.selected=null;map.setFilter('nta-sel',['==',['id'],-1]);renderContent();};
+  el.querySelectorAll('[data-i]').forEach(li=>li.onclick=()=>{const t=p.top[+li.dataset.i];const b=blds.features.find(x=>x.properties.addr===t.addr&&Math.abs(x.properties.gwh-t.gwh)<.02);if(b){map.flyTo({center:b.geometry.coordinates,zoom:14.5});select('bld',b);}});
+}
+function select(kind,f){state.selected={kind,p:f.properties,f};map.setFilter('nta-sel',['==',['id'],kind==='nta'?f.id:-1]);renderContent();$('#panel').classList.add('open');}
+function selectNTA(f,fly){select('nta',f);if(fly){const b=bbox(f.geometry);map.fitBounds(b,{padding:{left:380,top:60,right:60,bottom:60},maxZoom:13.5});}}
+function bbox(g){let b=[180,90,-180,-90];const w=c=>{b=[Math.min(b[0],c[0]),Math.min(b[1],c[1]),Math.max(b[2],c[0]),Math.max(b[3],c[1])]};(g.type==='Polygon'?[g.coordinates]:g.coordinates).forEach(p=>p[0].forEach(w));return b;}
+
+// ---------- hover ----------
+const tip=$('#tip');let hov={src:null,id:null};
+function setHover(src,id){if(hov.src)map.setFeatureState({source:hov.src,id:hov.id},{hover:false});hov={src,id};if(src)map.setFeatureState({source:src,id},{hover:true});}
+function wireHover(){
+  const order=['sub','pp','bld','bld-small','nta-fill'];
+  map.on('mousemove',e=>{
+    const fs=map.queryRenderedFeatures(e.point,{layers:order.filter(l=>map.getLayoutProperty(l,'visibility')!=='none')});
+    if(!fs.length){tip.style.display='none';map.getCanvas().style.cursor='';setHover(null);return;}
+    const f=fs[0],p=f.properties;map.getCanvas().style.cursor='pointer';
+    let h='';
+    if(f.layer.id==='nta-fill'){const m=METRICS[state.metric];const mix=typeof p.mix==='string'?JSON.parse(p.mix):p.mix;
+      h=`<div class="n">${p.name}</div><div class="s">${p.boro} · ${fmt(p.n)} buildings</div><div class="v">${fmtE(p.energy_gwh)} site energy · ${fmt(100*p.elec_share)}% electric<br>${m.l}: <b>${fmt(p[state.metric],m.d)} ${m.u}</b></div>`;setHover('nta',f.id);}
+    else if(f.layer.id==='bld'||f.layer.id==='bld-small'){h=`<div class="n">${p.name}</div><div class="s">${p.ptype} · ${p.nta}</div><div class="v"><b>${fmt(p.gwh,1)} GWh</b> · EUI ${fmt(p.eui)} kBtu/ft² · ${fmt(p.gfa/1000)}k ft²</div>`;setHover('blds',f.id);}
+    else if(f.layer.id==='pp'){h=`<div class="n">${p.name}</div><div class="s">${p.src} · ${p.sector}</div><div class="v"><b>${fmt(p.mw)} MW</b> nameplate</div>`;setHover(null);}
+    else{h=`<div class="n">${p.name}</div><div class="s">Substation · ${p.county}</div><div class="v">${p.kv?p.kv+' kV':'voltage not available'}</div>`;setHover(null);}
+    tip.innerHTML=h;tip.style.display='block';
+    const x=Math.min(e.point.x,innerWidth-300),y=Math.min(e.point.y,innerHeight-120);tip.style.left=x+'px';tip.style.top=y+'px';
+  });
+  map.on('mouseout',()=>{tip.style.display='none';setHover(null);});
+}
+function wireClicks(){
+  map.on('click',e=>{
+    const fs=map.queryRenderedFeatures(e.point,{layers:['sub','pp','bld','bld-small','nta-fill'].filter(l=>map.getLayoutProperty(l,'visibility')!=='none')});
+    if(!fs.length)return;const f=fs[0];
+    if(f.layer.id==='nta-fill')selectNTA(nta.features[f.id],false);
+    else if(f.layer.id==='bld'||f.layer.id==='bld-small')select('bld',blds.features[f.id]);
+    else if(f.layer.id==='pp')select('pp',{properties:{...f.properties,fuels:typeof f.properties.fuels==='string'?JSON.parse(f.properties.fuels):f.properties.fuels}});
+    else select('sub',{properties:f.properties});
+  });
+}
+
+// ---------- table ----------
+let sortKey='energy_gwh',sortDir=-1;
+function renderTable(){
+  const cols=[['name','Neighborhood'],['boro','Borough'],['n','Buildings'],['energy_gwh','Energy GWh'],['elec_gwh','Elec GWh'],['density','GWh/km²'],['eui_med','Med. EUI'],['ghgi_med','Med. kg/ft²'],['ghg_kt','kt CO₂e']];
+  const rows=nta.features.map(f=>f.properties).sort((a,b)=>{const x=a[sortKey],y=b[sortKey];return (typeof x==='string'?x.localeCompare(y):(x??-1)-(y??-1))*sortDir;});
+  $('#tableWrap').innerHTML=`<table><thead><tr>${cols.map(([k,l])=>`<th data-k="${k}" class="${k===sortKey?'on':''}">${l}${k===sortKey?(sortDir<0?' ↓':' ↑'):''}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr data-nta="${r.nta}" style="cursor:pointer">${cols.map(([k])=>`<td>${typeof r[k]==='string'?r[k]:fmt(r[k],k==='ghgi_med'?1:0)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  $$('#tableWrap th').forEach(th=>th.onclick=()=>{if(sortKey===th.dataset.k)sortDir*=-1;else{sortKey=th.dataset.k;sortDir=typeof rows[0][sortKey]==='string'?1:-1;}renderTable();});
+  $$('#tableWrap tr[data-nta]').forEach(tr=>tr.onclick=()=>{$('#tableModal').classList.remove('on');selectNTA(nta.features.find(f=>f.properties.nta===tr.dataset.nta),true);});
+}
+$('#tableBtn').onclick=()=>{renderTable();$('#tableModal').classList.add('on');};
+$('#aboutBtn').onclick=()=>$('#aboutModal').classList.add('on');
+$$('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove('on'));
+$$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.modal.on').forEach(m=>m.classList.remove('on'));});
+$('#grab').onclick=()=>$('#panel').classList.toggle('open');
+})();
+</script>
+</body>
+</html>
