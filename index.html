@@ -91,6 +91,12 @@ select{width:100%;background:var(--surface-2);color:var(--text);border:1px solid
 .sizes{display:flex;align-items:flex-end;gap:6px;margin-top:6px}
 .sizes .c{border-radius:50%;background:#fff1dc;border:1.5px solid #2a1410;box-shadow:0 0 6px rgba(255,178,107,.7)}
 
+/* ---------- hint / reset ---------- */
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:5;font-size:11px;color:var(--text-2);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;pointer-events:none}
+.hint:empty{display:none}
+.reset{position:absolute;right:16px;top:96px;z-index:5;background:var(--surface-2)}
+@media (max-width:760px){.reset{top:132px;right:12px}.hint{display:none}}
+
 /* ---------- tooltip ---------- */
 .tip{position:absolute;z-index:9;pointer-events:none;background:rgba(20,17,16,.95);border:1px solid rgba(255,190,140,.22);border-radius:10px;padding:9px 11px;
   font-size:12px;line-height:1.4;color:var(--text);max-width:280px;box-shadow:var(--shadow);display:none;transform:translate(12px,12px)}
@@ -174,6 +180,8 @@ th.on{color:var(--amber-hi)}
 </aside>
 
 <div class="legend" id="legend"></div>
+<div class="hint" id="hint"></div>
+<button class="btn reset" id="reset" title="Reset view">⟲ Reset view</button>
 <div class="tip" id="tip"></div>
 
 <div class="modal" id="tableModal"><div class="box">
@@ -239,7 +247,7 @@ const baseStyle={version:8,glyphs:OFM+'/fonts/{fontstack}/{range}.pbf',
     {id:'water-label',type:'symbol','source-layer':'water_name',source:'omt',minzoom:10,layout:{'text-field':['get','name:latin'],'text-font':['Noto Sans Italic'],'text-size':10,'text-letter-spacing':.1},paint:{'text-color':'#6f5f52','text-halo-color':'#0c0b0b','text-halo-width':1}}
   ]};
 const map=new maplibregl.Map({container:'map',style:baseStyle,
-  center:[-73.94,40.72],zoom:10.3,minZoom:9,maxZoom:16.5,attributionControl:{compact:true},cooperativeGestures:true});
+  center:[-73.94,40.72],zoom:10.3,minZoom:9,maxZoom:16.5,attributionControl:{compact:true},cooperativeGestures:window.self!==window.top,maxPitch:70});
 map.on('load',()=>{ // graticule: faint 0.05° grid, like a drafting sheet
   const g={type:'FeatureCollection',features:[]};
   for(let x=-74.35;x<=-73.6;x+=.05)g.features.push({type:'Feature',geometry:{type:'LineString',coordinates:[[x,40.45],[x,41.0]]}});
@@ -247,7 +255,8 @@ map.on('load',()=>{ // graticule: faint 0.05° grid, like a drafting sheet
   map.addSource('grat',{type:'geojson',data:g});
   map.addLayer({id:'grat',type:'line',source:'grat',paint:{'line-color':'#8a7868','line-width':.5,'line-opacity':.22}},'park');
 });
-map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+map.addControl(new maplibregl.NavigationControl({showCompass:true,visualizePitch:true}),'top-right');
+map.dragRotate.enable();map.touchZoomRotate.enableRotation();map.keyboard.enable();
 window.__map=map; map.on('error',e=>console.error('MAPERR',e&&e.error&&e.error.message));
 
 // choropleth expression for current metric (+ type filter for energy metrics)
@@ -272,7 +281,7 @@ function metricDomain(){
 }
 function fillExpr(){const d=metricDomain(),v=metricValueExpr();const st=['step',v,RAMP[0]];d.breaks.forEach((b,i)=>st.push(b,RAMP[i+1]));return ['case',['<',v,0],'rgba(0,0,0,0)',st];}
 function alphaExpr(h){const d=metricDomain(),v=metricValueExpr();const st=['step',v,RAMP_A[0]];d.breaks.forEach((b,i)=>st.push(b,RAMP_A[i+1]));return h?['+',st,.1]:st;}
-function heightExpr(){const d=metricDomain(),v=metricValueExpr();return ['*',6000,['/',['max',v,0],d.hi]];}
+function heightExpr(){const d=metricDomain(),v=metricValueExpr();return ['*',9000,['sqrt',['/',['max',v,0],d.hi]]];}  // sqrt: mid values stay visible next to the Midtown spike
 
 map.on('load',()=>{
   // diamond icon for substations
@@ -287,7 +296,8 @@ map.on('load',()=>{
   map.addSource('subs',{type:'geojson',data:subs});
 
   map.addLayer({id:'nta-fill',type:'fill',source:'nta',paint:{'fill-color':fillExpr(),'fill-opacity':['case',['boolean',['feature-state','hover'],false],alphaExpr(true),alphaExpr(false)]}},'coast-glow');
-  map.addLayer({id:'nta-3d',type:'fill-extrusion',source:'nta',layout:{visibility:'none'},paint:{'fill-extrusion-color':fillExpr(),'fill-extrusion-height':heightExpr(),'fill-extrusion-opacity':.85,'fill-extrusion-base':0}});
+  map.addLayer({id:'nta-3d',type:'fill-extrusion',source:'nta',layout:{visibility:'none'},paint:{'fill-extrusion-color':['case',['boolean',['feature-state','hover'],false],'#fff1dc',fillExpr()],'fill-extrusion-height':heightExpr(),'fill-extrusion-opacity':1,'fill-extrusion-base':0,'fill-extrusion-vertical-gradient':true}});
+  map.setLight({anchor:'map',position:[1.4,110,35],color:'#ffe6c8',intensity:.55});
   map.addLayer({id:'nta-line',type:'line',source:'nta',paint:{'line-color':'#141110','line-width':.5,'line-opacity':.6}},'coast-glow');
   map.addLayer({id:'nta-sel',type:'line',source:'nta',filter:['==',['id'],-1],paint:{'line-color':'#fff3e3','line-width':2}});
   map.addLayer({id:'boro-line',type:'line',source:'boros',paint:{'line-color':'rgba(255,210,160,.28)','line-width':1}});
@@ -314,15 +324,20 @@ function applyLayers(){
   const v=k=>state.layers[k]?'visible':'none';
   [['nta-line','nta'],['nta-sel','nta'],['bld','bld'],['bld-glow','bld'],['bld-small','bld'],['pp','pp'],['pp-glow','pp'],['sub','sub']].forEach(([l,k])=>map.setLayoutProperty(l,'visibility',v(k)));
   map.setLayoutProperty('nta-fill','visibility',state.layers.nta&&!state.view3d?'visible':'none');
+  ['nta-line','boro-line'].forEach(l=>map.setLayoutProperty(l,'visibility',state.layers.nta&&!state.view3d?'visible':'none'));
   map.setLayoutProperty('nta-3d','visibility',state.layers.nta&&state.view3d?'visible':'none');
 }
 function applyTypes(){
   const t=state.types.size===TYPES.length?true:['in',['get','type'],['literal',[...state.types]]];
   map.setFilter('bld',['all',['>=',['get','gwh'],45],t]);map.setFilter('bld-glow',['all',['>=',['get','gwh'],45],t]);map.setFilter('bld-small',['all',['<',['get','gwh'],45],t]);
   map.setPaintProperty('nta-fill','fill-color',fillExpr());map.setPaintProperty('nta-fill','fill-opacity',['case',['boolean',['feature-state','hover'],false],alphaExpr(true),alphaExpr(false)]);
-  map.setPaintProperty('nta-3d','fill-extrusion-color',fillExpr());map.setPaintProperty('nta-3d','fill-extrusion-height',heightExpr());
+  map.setPaintProperty('nta-3d','fill-extrusion-color',['case',['boolean',['feature-state','hover'],false],'#fff1dc',fillExpr()]);map.setPaintProperty('nta-3d','fill-extrusion-height',heightExpr());
 }
-$('#btn3d').addEventListener('click',()=>{state.view3d=!state.view3d;$('#btn3d').classList.toggle('on',state.view3d);applyLayers();renderLegend();map.easeTo({pitch:state.view3d?55:0,bearing:state.view3d?-17:0,duration:900});});
+$('#btn3d').addEventListener('click',()=>{state.view3d=!state.view3d;$('#btn3d').classList.toggle('on',state.view3d);
+  // building dots sit on top of the blocks and clutter the 3D read: park them while in 3D, restore on exit
+  if(state.view3d){state._bldWas=state.layers.bld;state.layers.bld=false;}else if(state._bldWas!==undefined){state.layers.bld=state._bldWas;}
+  $('.tog[data-layer="bld"]').classList.toggle('on',state.layers.bld);applyLayers();renderLegend();if(state.view3d)map.easeTo({pitch:60,bearing:-25,zoom:Math.max(map.getZoom(),10.6),center:[-73.95,40.73],duration:1100});else map.easeTo({pitch:0,bearing:0,duration:900});
+  $('#hint').textContent=state.view3d?'Drag to pan · right-drag or ⌃-drag to rotate & tilt · scroll to zoom':'';});
 $('#layers').addEventListener('click',e=>{const b=e.target.closest('.tog');if(!b||!b.dataset.layer)return;state.layers[b.dataset.layer]=!state.layers[b.dataset.layer];b.classList.toggle('on');applyLayers();renderLegend();});
 $('#metric').addEventListener('change',e=>{state.metric=e.target.value;applyTypes();renderLegend();});
 const typesEl=$('#types');
@@ -411,13 +426,13 @@ function bbox(g){let b=[180,90,-180,-90];const w=c=>{b=[Math.min(b[0],c[0]),Math
 const tip=$('#tip');let hov={src:null,id:null};
 function setHover(src,id){if(hov.src)map.setFeatureState({source:hov.src,id:hov.id},{hover:false});hov={src,id};if(src)map.setFeatureState({source:src,id},{hover:true});}
 function wireHover(){
-  const order=['sub','pp','bld','bld-small','nta-fill'];
+  const order=['sub','pp','bld','bld-small','nta-3d','nta-fill'];
   map.on('mousemove',e=>{
     const fs=map.queryRenderedFeatures(e.point,{layers:order.filter(l=>map.getLayoutProperty(l,'visibility')!=='none')});
     if(!fs.length){tip.style.display='none';map.getCanvas().style.cursor='';setHover(null);return;}
     const f=fs[0],p=f.properties;map.getCanvas().style.cursor='pointer';
     let h='';
-    if(f.layer.id==='nta-fill'){const m=METRICS[state.metric];const mix=typeof p.mix==='string'?JSON.parse(p.mix):p.mix;
+    if(f.layer.id==='nta-fill'||f.layer.id==='nta-3d'){const m=METRICS[state.metric];const mix=typeof p.mix==='string'?JSON.parse(p.mix):p.mix;
       h=`<div class="n">${p.name}</div><div class="s">${p.boro} · ${fmt(p.n)} buildings</div><div class="v">${fmtE(p.energy_gwh)} site energy · ${fmt(100*p.elec_share)}% electric<br>${m.l}: <b>${fmt(p[state.metric],m.d)} ${m.u}</b></div>`;setHover('nta',f.id);}
     else if(f.layer.id==='bld'||f.layer.id==='bld-small'){h=`<div class="n">${p.name}</div><div class="s">${p.ptype} · ${p.nta}</div><div class="v"><b>${fmt(p.gwh,1)} GWh</b> · EUI ${fmt(p.eui)} kBtu/ft² · ${fmt(p.gfa/1000)}k ft²</div>`;setHover('blds',f.id);}
     else if(f.layer.id==='pp'){h=`<div class="n">${p.name}</div><div class="s">${p.src} · ${p.sector}</div><div class="v"><b>${fmt(p.mw)} MW</b> nameplate</div>`;setHover(null);}
@@ -429,9 +444,9 @@ function wireHover(){
 }
 function wireClicks(){
   map.on('click',e=>{
-    const fs=map.queryRenderedFeatures(e.point,{layers:['sub','pp','bld','bld-small','nta-fill'].filter(l=>map.getLayoutProperty(l,'visibility')!=='none')});
+    const fs=map.queryRenderedFeatures(e.point,{layers:['sub','pp','bld','bld-small','nta-3d','nta-fill'].filter(l=>map.getLayoutProperty(l,'visibility')!=='none')});
     if(!fs.length)return;const f=fs[0];
-    if(f.layer.id==='nta-fill')selectNTA(nta.features[f.id],false);
+    if(f.layer.id==='nta-fill'||f.layer.id==='nta-3d')selectNTA(nta.features[f.id],false);
     else if(f.layer.id==='bld'||f.layer.id==='bld-small')select('bld',blds.features[f.id]);
     else if(f.layer.id==='pp')select('pp',{properties:{...f.properties,fuels:typeof f.properties.fuels==='string'?JSON.parse(f.properties.fuels):f.properties.fuels}});
     else select('sub',{properties:f.properties});
@@ -453,6 +468,7 @@ $$('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove
 $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.modal.on').forEach(m=>m.classList.remove('on'));});
 $('#grab').onclick=()=>$('#panel').classList.toggle('open');
+$('#reset').onclick=()=>map.easeTo({center:[-73.94,40.72],zoom:10.3,pitch:state.view3d?60:0,bearing:state.view3d?-25:0,duration:900});
 })();
 </script>
 </body>
