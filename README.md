@@ -4,13 +4,13 @@
 
 An interactive map that puts the city's building energy demand (every large building reporting under Local Law 84, calendar year 2024) on the same canvas as its in-city power supply (EIA power plants and HIFLD transmission substations).
 
-Live: `https://<your-github-username>.github.io/nyc-energy-map/`
+Live: `https://wt-hsu.github.io/nyc-energy-map/`
 
 ## Embed it
 
 ```html
 <iframe
-  src="https://<your-github-username>.github.io/nyc-energy-map/"
+  src="https://wt-hsu.github.io/nyc-energy-map/"
   title="NYC Energy Map"
   width="100%" height="720"
   style="border:0;border-radius:16px;overflow:hidden"
