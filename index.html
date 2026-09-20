@@ -216,7 +216,7 @@ $('#aboutN').textContent=fmt(summary.buildings);
 const OFM='https://tiles.openfreemap.org';
 const roadGlow=(cls)=>['match',['get','class'],['motorway','trunk'],'#ff7a2e',['primary'],'#f06a2c',['secondary','tertiary'],'#c25a2a','#6b3320'];
 const baseStyle={version:8,glyphs:OFM+'/fonts/{fontstack}/{range}.pbf',
-  sources:{mask:{type:'geojson',data:{type:'FeatureCollection',features:[]}},omt:{type:'vector',url:OFM+'/planet',attribution:'<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'}},
+  sources:{mask:{type:'geojson',data:'data/mask.geojson'},omt:{type:'vector',url:OFM+'/planet',attribution:'<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'}},
   layers:[
     {id:'bg',type:'background',paint:{'background-color':'#141110'}},
     {id:'park',type:'fill','source-layer':'park',source:'omt',paint:{'fill-color':'#1a1614','fill-opacity':.9}},
@@ -248,6 +248,7 @@ map.on('load',()=>{ // graticule: faint 0.05° grid, like a drafting sheet
   map.addLayer({id:'grat',type:'line',source:'grat',paint:{'line-color':'#8a7868','line-width':.5,'line-opacity':.22}},'park');
 });
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+window.__map=map; map.on('error',e=>console.error('MAPERR',e&&e.error&&e.error.message));
 
 // choropleth expression for current metric (+ type filter for energy metrics)
 function metricValueExpr(){
@@ -279,9 +280,6 @@ map.on('load',()=>{
   g.translate(14,14);g.rotate(Math.PI/4);g.lineWidth=2.4;g.strokeStyle='#fff3e3';g.fillStyle='rgba(20,17,16,.85)';g.beginPath();g.rect(-7,-7,14,14);g.fill();g.stroke();
   map.addImage('diamond',{width:28,height:28,data:g.getImageData(0,0,28,28).data},{pixelRatio:2});
 
-  // mask: world polygon with the five boroughs cut out
-  const holes=[];boros.features.forEach(f=>{const g=f.geometry;(g.type==='Polygon'?[g.coordinates]:g.coordinates).forEach(p=>holes.push(p[0]));});
-  map.getSource('mask').setData({type:'Feature',geometry:{type:'Polygon',coordinates:[[[-180,-85],[180,-85],[180,85],[-180,85],[-180,-85]],...holes]}});
   map.addSource('nta',{type:'geojson',data:nta});
   map.addSource('boros',{type:'geojson',data:boros});
   map.addSource('blds',{type:'geojson',data:blds});
