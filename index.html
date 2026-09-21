@@ -89,7 +89,7 @@ select{width:100%;background:var(--surface-2);color:var(--text);border:1px solid
 .lg-row .c{border-radius:50%;flex:none}
 .lg-row .d{width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--white);flex:none}
 .sizes{display:flex;align-items:flex-end;gap:6px;margin-top:6px}
-.sizes .c{border-radius:50%;background:#fff1dc;border:1.5px solid #2a1410;box-shadow:0 0 6px rgba(255,178,107,.7)}
+.sizes .c{border-radius:50%;background:rgba(255,140,60,.25);border:1.5px solid #ffc27a;box-shadow:0 0 6px rgba(255,154,60,.7)}
 
 /* ---------- hint / reset ---------- */
 .hint{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:5;font-size:11px;color:var(--text-2);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;pointer-events:none}
@@ -152,7 +152,7 @@ th.on{color:var(--amber-hi)}
       <h3>Show</h3>
       <div class="row" id="layers">
         <button class="tog on" data-layer="nta"><span class="sw" style="background:linear-gradient(90deg,var(--ramp-1),var(--ramp-3))"></span>Neighborhood demand</button>
-        <button class="tog on" data-layer="bld"><span class="sw" style="background:#fff1dc;box-shadow:0 0 0 1.5px #2a1410,0 0 6px #ffb26b"></span>Buildings</button>
+        <button class="tog on" data-layer="bld"><span class="sw" style="background:rgba(255,140,60,.25);border:1.5px solid #ffc27a;box-shadow:0 0 6px #ff9a3c"></span>Buildings</button>
         <button class="tog on" data-layer="pp"><span class="sw" style="background:var(--cyan)"></span>Power plants</button>
         <button class="tog" data-layer="sub"><span class="sw sq hollow"></span>Substations</button>
         <button class="tog" id="btn3d" title="Extrude neighborhoods by the selected metric">▲ 3D height</button>
@@ -233,16 +233,16 @@ const baseStyle={version:8,glyphs:OFM+'/fonts/{fontstack}/{range}.pbf',
     {id:'landuse',type:'fill','source-layer':'landuse',source:'omt',filter:['in','class','industrial','commercial','railway','cemetery'],paint:{'fill-color':'#181412'}},
     {id:'water',type:'fill','source-layer':'water',source:'omt',paint:{'fill-color':'#0c0b0b'}},
     {id:'waterway',type:'line','source-layer':'waterway',source:'omt',paint:{'line-color':'#0c0b0b','line-width':1}},
-    {id:'aeroway',type:'line','source-layer':'aeroway',source:'omt',paint:{'line-color':'#3a241a','line-width':1}},
-    {id:'coast-glow',type:'line','source-layer':'water',source:'omt',paint:{'line-color':'#8a7a6a','line-width':['interpolate',['linear'],['zoom'],9,3,14,8],'line-blur':['interpolate',['linear'],['zoom'],9,3,14,8],'line-opacity':['interpolate',['linear'],['zoom'],9,.12,12,.22]}},
-    {id:'coast',type:'line','source-layer':'water',source:'omt',paint:{'line-color':'#a89a8a','line-width':['interpolate',['linear'],['zoom'],9,.5,14,1.4],'line-opacity':.9}},
-    {id:'building-line',type:'line','source-layer':'building',source:'omt',minzoom:13,paint:{'line-color':'#5a4436','line-width':['interpolate',['linear'],['zoom'],13,.3,16,.9],'line-opacity':['interpolate',['linear'],['zoom'],13,0,14.5,.7]}},
-    {id:'rail',type:'line','source-layer':'transportation',source:'omt',filter:['==','class','rail'],paint:{'line-color':'#4a2c1f','line-width':.8,'line-dasharray':[3,3]}},
-    {id:'road-minor-glow',type:'line','source-layer':'transportation',source:'omt',minzoom:11,filter:['all',['in','class','minor','service','residential','living_street','tertiary'],['!=','brunnel','tunnel']],paint:{'line-color':'#8a7a6a','line-width':['interpolate',['linear'],['zoom'],11,1.2,15,5],'line-blur':['interpolate',['linear'],['zoom'],11,1.5,15,4],'line-opacity':['interpolate',['linear'],['zoom'],11,0,12.5,.12]}},
-    {id:'road-minor',type:'line','source-layer':'transportation',source:'omt',minzoom:10,filter:['all',['in','class','minor','service','residential','living_street','tertiary'],['!=','brunnel','tunnel']],paint:{'line-color':['match',['get','class'],['tertiary'],'#7a6e63','#574d45'],'line-width':['interpolate',['linear'],['zoom'],10,.25,13,.8,16,1.6],'line-opacity':['interpolate',['linear'],['zoom'],10,.35,12,.85]}},
-    {id:'road-major-glow',type:'line','source-layer':'transportation',source:'omt',filter:['all',['in','class','motorway','trunk','primary','secondary'],['!=','brunnel','tunnel']],paint:{'line-color':'#8a7a6a','line-width':['interpolate',['linear'],['zoom'],9,3,13,10,16,18],'line-blur':['interpolate',['linear'],['zoom'],9,3,13,8,16,12],'line-opacity':['interpolate',['linear'],['zoom'],9,.08,12,.16]}},
-    {id:'road-major',type:'line','source-layer':'transportation',source:'omt',filter:['all',['in','class','motorway','trunk','primary','secondary'],['!=','brunnel','tunnel']],paint:{'line-color':['match',['get','class'],['motorway','trunk'],'#b8aa9a',['primary'],'#9e9082','#74685c'],'line-width':['interpolate',['linear'],['zoom'],9,['match',['get','class'],['motorway','trunk'],1.4,['primary'],1,.6],13,['match',['get','class'],['motorway','trunk'],3.2,['primary'],2.4,1.6],16,['match',['get','class'],['motorway','trunk'],6,['primary'],4.5,3]]}},
-    {id:'boundary',type:'line','source-layer':'boundary',source:'omt',filter:['<=','admin_level',6],paint:{'line-color':'#4a3a30','line-width':.8,'line-dasharray':[2,2]}},
+    {id:'aeroway',type:'line','source-layer':'aeroway',source:'omt',paint:{'line-color':'#3a3a3a','line-width':1}},
+    {id:'coast-glow',type:'line','source-layer':'water',source:'omt',paint:{'line-color':'#8c8c8c','line-width':['interpolate',['linear'],['zoom'],9,3,14,8],'line-blur':['interpolate',['linear'],['zoom'],9,3,14,8],'line-opacity':['interpolate',['linear'],['zoom'],9,.12,12,.22]}},
+    {id:'coast',type:'line','source-layer':'water',source:'omt',paint:{'line-color':'#9a9a9a','line-width':['interpolate',['linear'],['zoom'],9,.5,14,1.4],'line-opacity':.9}},
+    {id:'building-line',type:'line','source-layer':'building',source:'omt',minzoom:13,paint:{'line-color':'#4a4a4a','line-width':['interpolate',['linear'],['zoom'],13,.3,16,.9],'line-opacity':['interpolate',['linear'],['zoom'],13,0,14.5,.7]}},
+    {id:'rail',type:'line','source-layer':'transportation',source:'omt',filter:['==','class','rail'],paint:{'line-color':'#3a3a3a','line-width':.8,'line-dasharray':[3,3]}},
+    {id:'road-minor-glow',type:'line','source-layer':'transportation',source:'omt',minzoom:11,filter:['all',['in','class','minor','service','residential','living_street','tertiary'],['!=','brunnel','tunnel']],paint:{'line-color':'#8c8c8c','line-width':['interpolate',['linear'],['zoom'],11,1.2,15,5],'line-blur':['interpolate',['linear'],['zoom'],11,1.5,15,4],'line-opacity':['interpolate',['linear'],['zoom'],11,0,12.5,.12]}},
+    {id:'road-minor',type:'line','source-layer':'transportation',source:'omt',minzoom:10,filter:['all',['in','class','minor','service','residential','living_street','tertiary'],['!=','brunnel','tunnel']],paint:{'line-color':['match',['get','class'],['tertiary'],'#6e6e6e','#4d4d4d'],'line-width':['interpolate',['linear'],['zoom'],10,.25,13,.8,16,1.6],'line-opacity':['interpolate',['linear'],['zoom'],10,.35,12,.85]}},
+    {id:'road-major-glow',type:'line','source-layer':'transportation',source:'omt',filter:['all',['in','class','motorway','trunk','primary','secondary'],['!=','brunnel','tunnel']],paint:{'line-color':'#8c8c8c','line-width':['interpolate',['linear'],['zoom'],9,3,13,10,16,18],'line-blur':['interpolate',['linear'],['zoom'],9,3,13,8,16,12],'line-opacity':['interpolate',['linear'],['zoom'],9,.08,12,.16]}},
+    {id:'road-major',type:'line','source-layer':'transportation',source:'omt',filter:['all',['in','class','motorway','trunk','primary','secondary'],['!=','brunnel','tunnel']],paint:{'line-color':['match',['get','class'],['motorway','trunk'],'#b4b4b4',['primary'],'#9a9a9a','#777777'],'line-width':['interpolate',['linear'],['zoom'],9,['match',['get','class'],['motorway','trunk'],1.4,['primary'],1,.6],13,['match',['get','class'],['motorway','trunk'],3.2,['primary'],2.4,1.6],16,['match',['get','class'],['motorway','trunk'],6,['primary'],4.5,3]]}},
+    {id:'boundary',type:'line','source-layer':'boundary',source:'omt',filter:['<=','admin_level',6],paint:{'line-color':'#444444','line-width':.8,'line-dasharray':[2,2]}},
     {id:'place-label',type:'symbol','source-layer':'place',source:'omt',filter:['in','class','city','town','suburb','neighbourhood','quarter'],minzoom:10,layout:{'text-field':['get','name:latin'],'text-font':['Noto Sans Regular'],'text-size':['interpolate',['linear'],['zoom'],10,9.5,14,12],'text-transform':'uppercase','text-letter-spacing':.12,'text-max-width':7},paint:{'text-color':'#c9b8a6','text-halo-color':'#141110','text-halo-width':1.4,'text-opacity':.85}},
     {id:'road-label',type:'symbol','source-layer':'transportation_name',source:'omt',minzoom:13,filter:['in','class','motorway','trunk','primary','secondary'],layout:{'symbol-placement':'line','text-field':['get','name:latin'],'text-font':['Noto Sans Regular'],'text-size':10,'text-letter-spacing':.06},paint:{'text-color':'#c9b8a6','text-halo-color':'#141110','text-halo-width':1.2}},
     {id:'mask',type:'fill',source:'mask',paint:{'fill-color':'#141110','fill-opacity':.66}},
@@ -307,10 +307,10 @@ map.on('load',()=>{
   const sq=['sqrt',['get','gwh']];
   const rad=(k,add)=>['interpolate',['linear'],['zoom'],9,['+',add,['max',2.2,['*',.55*k,sq]]],12,['+',add,['max',2.6,['*',1.3*k,sq]]],15,['+',add,['max',3,['*',3*k,sq]]]];
   const BIG=45; // GWh: buildings above this are always drawn; the long tail appears from zoom 11.5
-  map.addLayer({id:'bld-small',type:'circle',source:'blds',minzoom:11.5,filter:['<',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'#fff1dc','circle-opacity':['interpolate',['linear'],['zoom'],11.5,0,12.5,.85],'circle-stroke-color':'#2a1410','circle-stroke-width':1}});
-  map.addLayer({id:'bld-glow',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,5),'circle-color':'#ffb26b','circle-opacity':.4,'circle-blur':.8}});
-  map.addLayer({id:'bld',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':['case',['boolean',['feature-state','hover'],false],'#ffffff','#fff1dc'],'circle-opacity':.82,
-    'circle-stroke-color':'#2a1410','circle-stroke-width':1.5}});
+  map.addLayer({id:'bld-small',type:'circle',source:'blds',minzoom:11.5,filter:['<',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':'rgba(255,140,60,.18)','circle-opacity':['interpolate',['linear'],['zoom'],11.5,0,12.5,1],'circle-stroke-color':'#ffb26b','circle-stroke-width':1,'circle-stroke-opacity':['interpolate',['linear'],['zoom'],11.5,0,12.5,.9]}});
+  map.addLayer({id:'bld-glow',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,6),'circle-color':'#ff9a3c','circle-opacity':.35,'circle-blur':.8}});
+  map.addLayer({id:'bld',type:'circle',source:'blds',filter:['>=',['get','gwh'],BIG],paint:{'circle-radius':rad(1,0),'circle-color':['case',['boolean',['feature-state','hover'],false],'rgba(255,178,107,.55)','rgba(255,140,60,.22)'],'circle-opacity':1,
+    'circle-stroke-color':'#ffc27a','circle-stroke-width':1.5}});
   const sm=['sqrt',['get','mw']];
   const prad=add=>['interpolate',['linear'],['zoom'],9,['+',add,['max',4,['*',.45,sm]]],13,['+',add,['max',5,['*',1.1,sm]]]];
   map.addLayer({id:'pp-glow',type:'circle',source:'plants',paint:{'circle-radius':prad(7),'circle-color':'#1f9fb7','circle-opacity':.3,'circle-blur':.8}});
